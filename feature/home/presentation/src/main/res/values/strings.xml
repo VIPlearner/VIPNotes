@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="some_list_error">Some list error</string>
+    <string name="add_note_error">Can not add to notes</string>
+    <string name="add_favourite_success">Successfully added!</string>
+    <string name="create_your_first_note">Create your first note!</string>
+</resources>

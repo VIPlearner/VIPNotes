@@ -20,10 +20,17 @@ dependencyResolutionManagement {
 
 rootProject.name = "notes"
 include(":app")
-include(":common")
-include(":common:data")
 include(":common:domain")
 include(":common:presentation")
-include(":feature")
+include(":feature:home:domain")
+include(":feature:home:presentation")
+include(":feature:detail:presentation")
+include(":feature:favourite:domain")
+include(":feature:favourite:presentation")
+include(":feature:home:data")
+include(":feature:favourite:data")
+include(":feature:detail:domain")
 include(":navigation")
-include(":feature:home")
+include(":common:data:remote")
+include(":common:data:local")
+
