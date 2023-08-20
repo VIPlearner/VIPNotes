@@ -35,8 +35,7 @@ class HomeViewModel @Inject constructor(
 
     fun getList() {
         viewModelScope.launch {
-            getListUseCase.invoke()
-                .collect { result ->
+            getListUseCase.invoke { result ->
                     when (result) {
                         is Result.Success -> {
                             result.data?.let { response ->

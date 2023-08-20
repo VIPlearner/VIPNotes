@@ -10,6 +10,6 @@ import javax.inject.Inject
 class AddNoteUseCase @Inject constructor(
     private val homeRepository: HomeRepository,
 ) {
-    operator fun invoke(noteEntity: NoteEntity): Flow<Result<Unit, HomeError>> =
+    suspend operator fun invoke(noteEntity: NoteEntity): Flow<Result<Unit, HomeError>> =
         homeRepository.addNote(noteEntity)
 }

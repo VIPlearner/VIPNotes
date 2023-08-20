@@ -42,7 +42,8 @@ android {
         jvmTarget = "1.8"
     }
     buildFeatures {
-        compose = true
+        this.buildConfig = true
+        this.compose = true
     }
     composeOptions {
         kotlinCompilerExtensionVersion = libs.versions.kotlin.compiler.extension.get()
@@ -68,6 +69,7 @@ dependencies {
     implementation(libs.hilt)
     implementation(libs.navigation.compose)
     implementation(libs.navigation.common.ktx)
+    implementation(libs.jakewharton.timber)
     kapt(libs.hilt.compiler)
     implementation(libs.activity.compose)
     implementation(platform(libs.compose.bom))

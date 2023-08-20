@@ -45,6 +45,7 @@ dependencies {
     implementation(libs.core.ktx)
     implementation(libs.ktor.core)
     implementation(libs.hilt)
+    implementation(libs.jakewharton.timber)
     kapt(libs.hilt.compiler)
     runtimeOnly(libs.room.runtime)
     implementation(libs.room.ktx)

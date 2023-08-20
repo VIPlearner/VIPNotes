@@ -18,6 +18,7 @@ compose-bom = "2023.08.00"
 appcompat = "1.6.1"
 material = "1.9.0"
 material3 = "1.1.1"
+jakewhartonTimber = "5.0.1"
 ksp = "1.9.0-1.0.12"
 kotlin-serialization = "1.5.1"
 room = "2.5.2"
@@ -62,6 +63,7 @@ navigation-compose = { group = "androidx.navigation", name = "navigation-compose
 navigation-common-ktx = { group = "androidx.navigation", name = "navigation-common-ktx", version.ref = "navigation" }
 kotlin-serialization = { group = "org.jetbrains.kotlinx", name = "kotlinx-serialization-json", version.ref = "kotlin-serialization" }
 room-runtime = { group = "androidx.room", name = "room-runtime", version.ref = "room" }
+jakewharton-timber = { module = "com.jakewharton.timber:timber", version.ref = "jakewhartonTimber" }
 room-ktx = { group = "androidx.room", name = "room-ktx", version.ref = "room" }
 room-compiler = { group = "androidx.room", name = "room-compiler", version.ref = "room" }
 room-testing = { group = "androidx.room", name = "room-testing", version.ref = "room" }
