@@ -1,0 +1,5 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="get_note_error">Unable to retrieve note</string>
+    <string name="update_note_error">Unable to update note</string>
+</resources>

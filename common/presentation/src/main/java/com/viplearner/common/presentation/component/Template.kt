@@ -1,4 +1,4 @@
-package com.viplearner.feature.home.presentation.component
+package com.viplearner.common.presentation.component
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
@@ -15,7 +15,7 @@ import androidx.compose.ui.unit.dp
 fun Template(
     modifier: Modifier = Modifier,
     topBar: @Composable () -> Unit = {},
-    floatingActionButton: @Composable () -> Unit,
+    floatingActionButton: @Composable () -> Unit = {},
     content: @Composable (PaddingValues) -> Unit
 ) {
     Box(
@@ -29,7 +29,6 @@ fun Template(
             floatingActionButton = floatingActionButton,
             modifier = Modifier
                 .fillMaxSize()
-                .padding(vertical = 10.dp, horizontal = 20.dp)
         )
     }
 }

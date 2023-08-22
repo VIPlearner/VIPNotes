@@ -1,5 +1,6 @@
 package com.viplearner.feature.home.presentation.component
 
+import androidx.annotation.DrawableRes
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -17,6 +18,7 @@ import com.viplearner.feature.home.presentation.R
 @Composable
 fun EmptyListView(
     modifier: Modifier = Modifier,
+    @DrawableRes imgRes: Int = R.drawable.empty_note,
     message: String
 ){
     Box(modifier = modifier.fillMaxSize()) {
@@ -27,7 +29,7 @@ fun EmptyListView(
                 modifier = Modifier
                     .fillMaxWidth()
                     .align(Alignment.CenterHorizontally),
-                painter = painterResource(id = R.drawable.empty_note),
+                painter = painterResource(id = imgRes),
                 contentDescription = null
             )
             Text(

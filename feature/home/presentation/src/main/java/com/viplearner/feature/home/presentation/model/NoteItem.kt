@@ -6,7 +6,8 @@ import kotlinx.parcelize.Parcelize
 @Parcelize
 data class NoteItem(
     val uuid: String,
-    val title : String,
+    val title: String,
     val content: String,
-    val time: String
-) : Parcelable
+    val timeLastEdited: Long,
+    val isPinned: Boolean,
+): Parcelable

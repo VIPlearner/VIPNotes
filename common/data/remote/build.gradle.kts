@@ -1,3 +1,4 @@
+
 plugins {
     alias(libs.plugins.androidLibrary)
     alias(libs.plugins.kotlin.android)
@@ -40,5 +41,6 @@ dependencies {
     implementation(libs.bundles.ktor)
     implementation(libs.kotlin.serialization)
     implementation(libs.hilt)
+    implementation(libs.junit4)
     kapt(libs.hilt.compiler)
 }

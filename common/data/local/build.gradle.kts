@@ -16,6 +16,10 @@ android {
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
         consumerProguardFiles("consumer-rules.pro")
+
+        ksp {
+            arg("room.schemaLocation", "$projectDir/schemas")
+        }
     }
 
     buildTypes {
@@ -37,6 +41,7 @@ android {
 }
 
 dependencies {
+    implementation(project(":common:domain"))
     implementation(libs.core.ktx)
     implementation(libs.kotlin.serialization)
     implementation(libs.hilt)

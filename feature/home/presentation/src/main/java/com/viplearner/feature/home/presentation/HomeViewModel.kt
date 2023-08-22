@@ -4,7 +4,6 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.eemmez.localization.LocalizationManager
 import com.viplearner.common.domain.Result
-import com.viplearner.feature.home.domain.usecase.AddNoteUseCase
 import com.viplearner.feature.home.domain.usecase.GetListUseCase
 import com.viplearner.feature.home.presentation.mapper.ErrorMessageMapper
 import com.viplearner.feature.home.presentation.mapper.toNoteItem
@@ -19,7 +18,6 @@ import javax.inject.Inject
 @HiltViewModel
 class HomeViewModel @Inject constructor(
     private val getListUseCase: GetListUseCase,
-    private val addNotesUseCase: AddNoteUseCase,
     private val errorMessageMapper: ErrorMessageMapper,
     private val localizationManager: LocalizationManager
 ) : ViewModel() {
@@ -30,12 +28,12 @@ class HomeViewModel @Inject constructor(
     val homeScreenUiEvent: StateFlow<HomeScreenUiEvent> = _homeScreenUiEvent
 
     init {
-        getList()
+        getList("")
     }
 
-    fun getList() {
+    fun getList(searchText: String) {
         viewModelScope.launch {
-            getListUseCase.invoke { result ->
+            getListUseCase.invoke(searchText) { result ->
                     when (result) {
                         is Result.Success -> {
                             result.data?.let { response ->
@@ -44,8 +42,14 @@ class HomeViewModel @Inject constructor(
                                         HomeScreenUiState.Content(list = response.list.map { it.toNoteItem() })
                                 }
                                 else{
-                                    _homeScreenUiState.value =
-                                        HomeScreenUiState.Empty(localizationManager.getString(R.string.create_your_first_note))
+                                    if(searchText.isEmpty()){
+                                        _homeScreenUiState.value =
+                                            HomeScreenUiState.Empty(localizationManager.getString(R.string.create_your_first_note))
+                                    }
+                                    else{
+                                        _homeScreenUiState.value =
+                                            HomeScreenUiState.NoNoteFound(localizationManager.getString(R.string.no_note_found))
+                                    }
                                 }
                             }
                         }
@@ -66,9 +70,9 @@ class HomeViewModel @Inject constructor(
         }
     }
 
-//    fun addNote(noteItem: NoteItem) {
+//    fun addNote(NoteEntity: NoteEntity) {
 //        viewModelScope.launch {
-//            addNotesUseCase.invoke(noteItem.to)
+//            addNotesUseCase.invoke(NoteEntity.to)
 //                .collect { result ->
 //                    when (result) {
 //                        is Result.Success -> {

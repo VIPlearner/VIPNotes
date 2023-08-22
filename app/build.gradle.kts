@@ -23,6 +23,11 @@ android {
         vectorDrawables {
             useSupportLibrary = true
         }
+        kapt {
+            arguments {
+                arg("room.schemaLocation", "$projectDir/schemas")
+            }
+        }
     }
 
     buildTypes {
@@ -64,12 +69,16 @@ dependencies {
     implementation(project(":feature:home:data"))
     implementation(project(":feature:home:domain"))
     implementation(project(":feature:home:presentation"))
+    implementation(project(":feature:single_note:data"))
+    implementation(project(":feature:single_note:domain"))
+    implementation(project(":feature:single_note:presentation"))
     implementation(libs.core.ktx)
     implementation(libs.lifecycle.runtime.ktx)
     implementation(libs.hilt)
     implementation(libs.navigation.compose)
     implementation(libs.navigation.common.ktx)
     implementation(libs.jakewharton.timber)
+    implementation(libs.room.runtime)
     kapt(libs.hilt.compiler)
     implementation(libs.activity.compose)
     implementation(platform(libs.compose.bom))
@@ -82,6 +91,7 @@ dependencies {
     androidTestImplementation(libs.espresso.core)
     androidTestImplementation(platform(libs.compose.bom))
     androidTestImplementation(libs.ui.test.junit4)
+    annotationProcessor(libs.room.compiler)
     debugImplementation(libs.ui.tooling)
     debugImplementation(libs.ui.test.manifest)
 }

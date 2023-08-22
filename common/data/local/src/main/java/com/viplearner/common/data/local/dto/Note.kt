@@ -10,5 +10,6 @@ data class Note(
     @PrimaryKey @ColumnInfo(name = "uuid") val uuid: String = UUID.randomUUID().toString(),
     @ColumnInfo(name = "title") val title: String,
     @ColumnInfo(name = "content") val content: String,
-    @ColumnInfo(name = "timeLastEdited") val timeLastEdited: Long
+    @ColumnInfo(name = "timeLastEdited") val timeLastEdited: Long,
+    @ColumnInfo(name = "isPinned", defaultValue = "0") val isPinned: Boolean
 )

@@ -34,3 +34,7 @@ include(":navigation")
 include(":common:data:remote")
 include(":common:data:local")
 
+include(":feature:single_note")
+include(":feature:single_note:data")
+include(":feature:single_note:domain")
+include(":feature:single_note:presentation")

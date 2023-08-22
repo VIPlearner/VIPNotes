@@ -6,10 +6,13 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.rememberNavController
 import com.viplearner.feature.home.presentation.HomeNavigation
 import com.viplearner.feature.home.presentation.homeRoute
+import com.viplearner.feature.single_note.presentation.singleNoteRoute
+import com.viplearner.feature.single_note.presentation.viewmodel.SingleNoteViewModel
 
 @Composable
 fun Navigation(
-    navController: NavHostController = rememberNavController()
+    navController: NavHostController = rememberNavController(),
+    singleNoteViewModelFactory: SingleNoteViewModel.Factory
 ) {
     NavHost(
         navController = navController,
@@ -21,5 +24,10 @@ fun Navigation(
 //                navController.navigate("${DetailNavigation.route}/$detailEntityArg")
             }
         )
+        singleNoteRoute(
+            factory = singleNoteViewModelFactory
+        ) {
+            navController.popBackStack()
+        }
     }
 }

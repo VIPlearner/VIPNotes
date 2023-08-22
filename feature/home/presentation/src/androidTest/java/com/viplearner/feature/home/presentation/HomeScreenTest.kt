@@ -31,6 +31,7 @@ class HomeScreenTest {
                 onTextChanged = {},
                 onItemClick = {},
                 onItemLongClick = {},
+                onAddNoteClick = {},
                 homeScreenUiState = HomeScreenUiState.Content(listOf()),
                 homeScreenUiEvent = HomeScreenUiEvent.Idle,
                 snackbarHostState = SnackbarHostState()
@@ -48,6 +49,7 @@ class HomeScreenTest {
                 onTextChanged = {},
                 onItemClick = {},
                 onItemLongClick = {},
+                onAddNoteClick = {},
                 homeScreenUiState = HomeScreenUiState.Error(errorMessage),
                 homeScreenUiEvent = HomeScreenUiEvent.Idle,
                 snackbarHostState = SnackbarHostState()
@@ -66,6 +68,7 @@ class HomeScreenTest {
             HomeScreen(
                 onTextChanged = {},
                 onItemClick = {},
+                onAddNoteClick = {},
                 onItemLongClick = {
                     homeScreenUiEvent = HomeScreenUiEvent.AddNoteSuccess("Added Successfully!")
                 },
@@ -75,7 +78,8 @@ class HomeScreenTest {
                             "902930",
                             "How to make pancakes",
                             "Whisk the eggs to make pancakes for the house to eat fro the bowl",
-                            "6:43 PM"
+                            1698737373L,
+                            false
                         )
                     )
                 ),

@@ -8,7 +8,6 @@ import androidx.compose.foundation.layout.wrapContentSize
 import androidx.compose.material3.SnackbarHost
 import androidx.compose.material3.SnackbarHostState
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
@@ -18,13 +17,14 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
-import com.viplearner.common.presentation.component.EmptyMessage
 import com.viplearner.common.presentation.component.ErrorDialog
 import com.viplearner.common.presentation.component.ProgressDialog
 import com.viplearner.feature.home.presentation.component.EmptyListView
 import com.viplearner.feature.home.presentation.component.List
+import com.viplearner.feature.home.presentation.component.NoNoteFoundView
+import com.viplearner.feature.home.presentation.component.NotesFloatingActionButton
 import com.viplearner.feature.home.presentation.component.SearchBox
-import com.viplearner.feature.home.presentation.component.Template
+import com.viplearner.common.presentation.component.Template
 import com.viplearner.feature.home.presentation.model.NoteItem
 import com.viplearner.feature.home.presentation.state.HomeScreenUiEvent
 import com.viplearner.feature.home.presentation.state.HomeScreenUiState
@@ -32,6 +32,7 @@ import com.viplearner.feature.home.presentation.state.HomeScreenUiState
 @Composable
 fun HomeRoute(
     onItemClick: (NoteItem) -> Unit,
+    onAddNoteClicked: () -> Unit,
     viewModel: HomeViewModel = hiltViewModel(),
 ) {
     val homeScreenUiState by viewModel.homeScreenUiState.collectAsStateWithLifecycle()
@@ -42,7 +43,10 @@ fun HomeRoute(
 
     HomeScreen(
         onTextChanged = { searchText ->
-            viewModel.getList()
+            viewModel.getList(searchText)
+        },
+        onAddNoteClick = {
+            onAddNoteClicked()
         },
         onItemClick = { homeListItem ->
             onItemClick.invoke(homeListItem)
@@ -59,6 +63,7 @@ fun HomeRoute(
 @Composable
 internal fun HomeScreen(
     onTextChanged: (String) -> Unit,
+    onAddNoteClick: () -> Unit,
     onItemClick: (NoteItem) -> Unit,
     onItemLongClick: (NoteItem) -> Unit,
     homeScreenUiState: HomeScreenUiState,
@@ -66,14 +71,18 @@ internal fun HomeScreen(
     snackbarHostState: SnackbarHostState
 ) {
     Template(
-        modifier = Modifier,
+        modifier = Modifier.padding(horizontal = 20.dp),
         topBar = {
             SearchBox(
-                modifier = Modifier,
+                modifier = Modifier.padding(vertical = 10.dp),
                 onTextChanged = onTextChanged
             )
         },
-        floatingActionButton = { /**TODO**/ }
+        floatingActionButton = {
+            NotesFloatingActionButton {
+                onAddNoteClick()
+            }
+        }
     ) {
         HomeContent(
             modifier = Modifier.padding(it),
@@ -99,7 +108,7 @@ internal fun HomeContent(
         is HomeScreenUiState.Content -> {
             List(
                 modifier = modifier
-                    .padding(horizontal = 20.dp)
+                    .padding()
                     .testTag(HomeTag.list),
                 listItems = homeScreenUiState.list,
                 onItemClick = onItemClick,
@@ -124,15 +133,15 @@ internal fun HomeContent(
                 message = homeScreenUiState.emptyMessage
             )
         }
+        is HomeScreenUiState.NoNoteFound -> {
+            NoNoteFoundView(
+                modifier = Modifier.testTag(HomeTag.noNoteFound),
+                noNoteFoundMessage = homeScreenUiState.noNoteFoundMessage
+            )
+        }
     }
 
     when (homeScreenUiEvent) {
-        is HomeScreenUiEvent.AddNoteSuccess -> {
-            LaunchedEffect(snackbarHostState) {
-                snackbarHostState.showSnackbar(homeScreenUiEvent.successMessage)
-            }
-        }
-
         is HomeScreenUiEvent.Loading -> {
             ProgressDialog()
         }
@@ -166,22 +175,25 @@ fun HomeScreenPreview(){
                 "902930",
                 "How to make pancakes",
                 "Whisk the eggs to make pancakes for the house to eat fro the bowl",
-                "6:43 PM"
+                18037723902,
+                false
             ),
             NoteItem(
                 "902930",
                 "How to make pancakes",
                 "Whisk the eggs to make pancakes for the house to eat fro the bowl",
-                "6:43 PM"
+                1897902028,
+                false
             )
         )
     )
     val empty = HomeScreenUiState.Empty("Create your first note!")
     HomeScreen(
         onTextChanged = {},
+        onAddNoteClick = {},
         onItemClick = {},
         onItemLongClick = {},
-        homeScreenUiState = empty,
+        homeScreenUiState = content,
         homeScreenUiEvent = HomeScreenUiEvent.Idle,
         snackbarHostState = remember{
             SnackbarHostState()

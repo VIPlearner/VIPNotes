@@ -7,4 +7,6 @@ sealed class HomeScreenUiState {
     data object Loading : HomeScreenUiState()
     data class Error(val errorMessage: String) : HomeScreenUiState()
     data class Content(val list: List<NoteItem>) : HomeScreenUiState()
+    data class NoNoteFound(val noNoteFoundMessage: String) : HomeScreenUiState()
+
 }

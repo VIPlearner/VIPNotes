@@ -41,7 +41,7 @@ fun SearchBox(modifier: Modifier = Modifier, onTextChanged: (String) -> Unit) {
                 .height(40.dp)
                 .testTag(HomeTag.searchBox),
             value = searchValue.value,
-            innerPaddingValues = PaddingValues(vertical = 2.dp, horizontal = 10.dp),
+            innerPaddingValues = PaddingValues(vertical = 2.dp, horizontal = 15.dp),
             onValueChange = {
                 searchValue.value = it
                 onTextChanged.invoke(it)

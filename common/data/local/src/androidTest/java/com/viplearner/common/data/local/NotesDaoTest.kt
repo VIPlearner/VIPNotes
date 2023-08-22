@@ -1,5 +1,6 @@
 package com.viplearner.common.data.local
 
+import android.util.Log
 import androidx.room.Room
 import androidx.test.core.app.ApplicationProvider
 import androidx.test.ext.junit.runners.AndroidJUnit4
@@ -7,6 +8,7 @@ import com.viplearner.common.data.local.dao.NotesDao
 import com.viplearner.common.data.local.database.NotesDatabase
 import com.viplearner.common.data.local.dto.Note
 import kotlinx.coroutines.ExperimentalCoroutinesApi
+import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.test.runTest
 import org.junit.After
 import org.junit.Before
@@ -37,22 +39,64 @@ class NoteDaoTest {
     @Test
     fun insertItem() {
         runTest {
-            val note = Note(title = "How to make pancakes", content = "Whisk egg" )
+            val note = Note(
+                title = "How to make pancakes",
+                content = "Whisk egg",
+                isPinned = false,
+                timeLastEdited = System.currentTimeMillis()
+            )
             noteDao.upsert(note)
 
-            val favouriteList = noteDao.getAll()
-            assert(favouriteList.contains(note))
+            val noteList = noteDao.getAll().first()
+            assert(noteList.contains(note))
+        }
+    }
+
+    @Test
+    fun retrieveNote(){
+        runTest {
+            val note = Note(
+                title = "How to make pancakes",
+                content = "Whisk egg",
+                isPinned = false,
+                timeLastEdited = System.currentTimeMillis()
+            )
+            noteDao.upsert(note)
+
+            val retrievedNote = noteDao.getNoteUsingUUID(note.uuid)
+            assert(retrievedNote == note)
+        }
+    }
+
+    @Test
+    fun retrieveNonExistingNote(){
+        runTest {
+            val note = Note(
+                title = "How to make pancakes",
+                content = "Whisk egg",
+                isPinned = false,
+                timeLastEdited = System.currentTimeMillis()
+            )
+            noteDao.upsert(note)
+
+            val retrievedNote = noteDao.getNoteUsingUUID("Kopek")
+            assert(retrievedNote == null)
         }
     }
 
     @Test
     fun deleteItem() {
         runTest {
-            val note = Note(title = "How to make pancakes", content = "Whisk egg" )
+            val note = Note(
+                title = "How to make pancakes",
+                content = "Whisk egg",
+                isPinned = false,
+                timeLastEdited = System.currentTimeMillis()
+            )
             noteDao.upsert(note)
             noteDao.delete(note.uuid)
 
-            val favouriteList = noteDao.getAll()
+            val favouriteList = noteDao.getAll().first()
             assert(favouriteList.contains(note).not())
         }
     }

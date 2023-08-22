@@ -6,4 +6,5 @@ object HomeTag {
     const val list = "listTag"
     const val emptyMessage = "emptyMessageTag"
     const val errorDialog = "errorDialogTag"
+    const val noNoteFound = "noNoteFoundTag"
 }

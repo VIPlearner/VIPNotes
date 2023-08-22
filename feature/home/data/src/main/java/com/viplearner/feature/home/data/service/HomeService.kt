@@ -8,11 +8,16 @@ import javax.inject.Inject
 class HomeService @Inject constructor(
     private val notesDatabase: NotesDatabase
 ) {
-    suspend fun getList(
+    fun getList(
     ): Flow<List<Note>> =
         notesDatabase.notesDao().getAll()
 
-    suspend fun addNote(note: Note) {
+    fun getListBySearchText(
+        searchText: String,
+    ): Flow<List<Note>> =
+        notesDatabase.notesDao().getNotesBySearchText(searchText)
+
+    fun addNote(note: Note) {
         notesDatabase.notesDao().upsert(note)
     }
 }

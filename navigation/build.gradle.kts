@@ -46,6 +46,7 @@ android {
 
 dependencies {
     implementation(project(":feature:home:presentation"))
+    implementation(project(":feature:single_note:presentation"))
     implementation(libs.core.ktx)
     implementation(libs.navigation.compose)
     implementation(libs.compose.bom)

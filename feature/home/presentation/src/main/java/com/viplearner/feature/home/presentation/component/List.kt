@@ -18,11 +18,12 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import com.viplearner.common.domain.entity.NoteEntity
+import com.viplearner.common.presentation.util.extension.epochTo12HrFormat
 import com.viplearner.feature.home.presentation.model.NoteItem
 
 @Composable
@@ -90,7 +91,7 @@ fun NoteItem(
             Text(
                 modifier = Modifier
                     .padding(horizontal = 10.dp),
-                text = noteItem.time,
+                text = noteItem.timeLastEdited.epochTo12HrFormat(),
                 style = MaterialTheme.typography.labelSmall,
                 overflow = TextOverflow.Ellipsis,
                 fontWeight = FontWeight.Light,
@@ -109,7 +110,8 @@ fun NoteItemPreview(){
             "902930",
             "How to make pancakes",
             "Whisk the eggs to make pancakes for the house to eat fro the bowl",
-            "6:43 PM"
+            15879023772,
+            false
         ),
         onItemClick = {},
         onItemLongClick = {}

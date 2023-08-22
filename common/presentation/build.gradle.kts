@@ -54,6 +54,7 @@ dependencies {
     implementation(libs.material3)
     implementation(libs.navigation.common.ktx)
     implementation(libs.gson)
+    implementation(libs.junit4)
     debugImplementation(libs.ui.tooling)
     debugImplementation(libs.ui.test.manifest)
     androidTestImplementation(libs.ui.test.junit4)
