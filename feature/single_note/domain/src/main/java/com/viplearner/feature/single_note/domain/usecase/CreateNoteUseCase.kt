@@ -6,9 +6,9 @@ import com.viplearner.feature.single_note.domain.entity.SingleNoteError
 import com.viplearner.feature.single_note.domain.repository.SingleNoteRepository
 import javax.inject.Inject
 
-class UpdateNoteUseCase @Inject constructor(
+class CreateNoteUseCase @Inject constructor(
     private val singleNoteRepository: SingleNoteRepository,
 ) {
-    suspend operator fun invoke(noteEntity: NoteEntity)=
-        singleNoteRepository.updateNote(noteEntity)
+    suspend operator fun invoke() =
+        singleNoteRepository.createNewNote()
 }

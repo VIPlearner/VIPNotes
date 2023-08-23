@@ -19,7 +19,7 @@ interface NotesDao {
             "ORDER BY timeLastEdited DESC")
     fun getNotesBySearchText(searchText: String): Flow<List<Note>>
 
-    @Query("SELECT *" +
+    @Query("SELECT * " +
             "FROM Notes " +
             "WHERE uuid=:uuid")
     fun getNoteUsingUUID(uuid: String): Note

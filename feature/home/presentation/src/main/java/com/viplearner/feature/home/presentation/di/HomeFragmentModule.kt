@@ -15,11 +15,6 @@ import dagger.hilt.android.scopes.ViewModelScoped
 object HomeFragmentModule {
     @Provides
     @ViewModelScoped
-    fun provideLocalizationManager(@ApplicationContext context: Context): LocalizationManager =
-        LocalizationManager(context)
-
-    @Provides
-    @ViewModelScoped
     fun provideErrorMessageMapper(localizationManager: LocalizationManager): ErrorMessageMapper =
         ErrorMessageMapper(localizationManager)
 }

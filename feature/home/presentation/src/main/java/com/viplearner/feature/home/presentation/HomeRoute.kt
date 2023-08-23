@@ -1,10 +1,12 @@
 package com.viplearner.feature.home.presentation
 
 import android.content.res.Configuration
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.wrapContentSize
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.SnackbarHost
 import androidx.compose.material3.SnackbarHostState
 import androidx.compose.runtime.Composable
@@ -31,8 +33,8 @@ import com.viplearner.feature.home.presentation.state.HomeScreenUiState
 
 @Composable
 fun HomeRoute(
-    onItemClick: (NoteItem) -> Unit,
-    onAddNoteClicked: () -> Unit,
+    onItemClick: (String) -> Unit,
+    onAddNoteClicked: (String) -> Unit,
     viewModel: HomeViewModel = hiltViewModel(),
 ) {
     val homeScreenUiState by viewModel.homeScreenUiState.collectAsStateWithLifecycle()
@@ -46,10 +48,10 @@ fun HomeRoute(
             viewModel.getList(searchText)
         },
         onAddNoteClick = {
-            onAddNoteClicked()
+            onAddNoteClicked(" ")
         },
-        onItemClick = { homeListItem ->
-            onItemClick.invoke(homeListItem)
+        onItemClick = { noteItem ->
+            onItemClick.invoke(noteItem.uuid)
         },
         onItemLongClick = { homeListItem ->
 //            viewModel.addNote(homeListItem)
@@ -71,10 +73,12 @@ internal fun HomeScreen(
     snackbarHostState: SnackbarHostState
 ) {
     Template(
-        modifier = Modifier.padding(horizontal = 20.dp),
+        modifier = Modifier
+            .background(MaterialTheme.colorScheme.background)
+        ,
         topBar = {
             SearchBox(
-                modifier = Modifier.padding(vertical = 10.dp),
+                modifier = Modifier.padding(vertical = 10.dp, horizontal = 20.dp),
                 onTextChanged = onTextChanged
             )
         },
@@ -85,7 +89,7 @@ internal fun HomeScreen(
         }
     ) {
         HomeContent(
-            modifier = Modifier.padding(it),
+            modifier = Modifier.padding(it).padding(horizontal = 20.dp),
             onItemClick = onItemClick,
             onItemLongClick = onItemLongClick,
             homeScreenUiState = homeScreenUiState,

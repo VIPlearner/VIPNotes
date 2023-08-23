@@ -13,4 +13,15 @@ class SingleNoteService @Inject constructor(
 
     fun getNote(uuid: String) =
         notesDatabase.notesDao().getNoteUsingUUID(uuid)
+
+    fun createNewNote(): Note {
+        val newNote = Note(
+            title = "",
+            content = "",
+            isPinned = false,
+            timeLastEdited = System.currentTimeMillis()
+        )
+        notesDatabase.notesDao().upsert(newNote)
+        return newNote
+    }
 }

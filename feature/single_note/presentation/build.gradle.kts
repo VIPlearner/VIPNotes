@@ -55,6 +55,7 @@ dependencies {
     implementation(project(":common:presentation"))
     implementation(project(":feature:single_note:domain"))
     implementation(libs.core.ktx)
+    implementation(libs.jakewharton.timber)
     implementation(libs.lifecycle.runtime.ktx)
     implementation(libs.lifecycle.runtime.compose)
     implementation(libs.activity.compose)

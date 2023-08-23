@@ -9,13 +9,11 @@ object HomeNavigation {
     const val route = "home"
 }
 
-fun NavGraphBuilder.homeRoute(navigateToNote: (NoteItem) -> Unit) {
+fun NavGraphBuilder.homeRoute(navigateToNote: (String) -> Unit) {
     composable(HomeNavigation.route) {
         HomeRoute(
-            onAddNoteClicked = {navigateToNote},
-            onItemClick = {
-                navigateToNote.invoke(it)
-            }
+            onAddNoteClicked = navigateToNote,
+            onItemClick = navigateToNote
         )
     }
 }

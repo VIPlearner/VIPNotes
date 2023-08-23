@@ -32,7 +32,7 @@ class HomeRepositoryImpl @Inject constructor(
                 result(
                     Result.Success(
                         GetNoteEntityListResponse(
-                            list = it.map { it.toNoteEntity() }
+                            list = it.map { note -> note.toNoteEntity() }
                         )
                     )
                 )

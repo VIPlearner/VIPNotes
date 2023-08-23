@@ -1,18 +1,34 @@
 package com.viplearner.feature.single_note.presentation
 
+import android.util.Log
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.fillMaxHeight
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowBack
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.tooling.preview.Preview
+import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import com.viplearner.common.presentation.component.ErrorDialog
+import com.viplearner.common.presentation.component.ProgressDialog
 import com.viplearner.common.presentation.component.Template
+import com.viplearner.feature.single_note.presentation.component.SingleNoteTextField
 import com.viplearner.feature.single_note.presentation.model.SingleNoteItem
 import com.viplearner.feature.single_note.presentation.state.SingleNoteScreenUiEvent
 import com.viplearner.feature.single_note.presentation.state.SingleNoteScreenUiState
@@ -36,10 +52,8 @@ fun SingleNoteRoute(
     }
 
     SingleNoteScreen(
-        onTitleChanged = { searchText ->
-        },
-        onContentChanged = {
-
+        onValueChanged = {
+            viewModel.updateNote(it)
         },
         onBackClick = onBackClick,
         singleNoteScreenUiState = singleNoteScreenUiState,
@@ -51,8 +65,7 @@ fun SingleNoteRoute(
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 internal fun SingleNoteScreen(
-    onTitleChanged: (String) -> Unit,
-    onContentChanged: (String) -> Unit,
+    onValueChanged: (SingleNoteItem) -> Unit,
     onBackClick: () -> Unit,
     singleNoteScreenUiState: SingleNoteScreenUiState,
     singleNoteScreenUiEvent: SingleNoteScreenUiEvent,
@@ -72,9 +85,64 @@ internal fun SingleNoteScreen(
                 title = {}
             )
         }
-    ) {
+    ) {paddingValues ->
+        SingleNoteContent(
+            onValueChanged = onValueChanged,
+            modifier = Modifier
+                .padding(paddingValues)
+                .padding(horizontal = 10.dp)
+                .fillMaxSize(),
+            singleNoteScreenUiState = singleNoteScreenUiState
+        )
 
+    }
+}
 
+@Composable
+internal fun SingleNoteContent(
+    onValueChanged: (SingleNoteItem) -> Unit,
+    modifier: Modifier,
+    singleNoteScreenUiState: SingleNoteScreenUiState
+){
+    when(singleNoteScreenUiState){
+        is SingleNoteScreenUiState.Content -> {
+            Column(modifier = modifier,
+                verticalArrangement = Arrangement.SpaceBetween
+            ) {
+                SingleNoteTextField(
+                    modifier = Modifier
+                        .testTag(SingleNoteTag.title),
+                    placeholderText = "Title",
+                    textStyle = MaterialTheme.typography.headlineLarge,
+                    value = singleNoteScreenUiState.singleNoteItem.title,
+                    onValueChange = {
+                        onValueChanged(
+                            singleNoteScreenUiState.singleNoteItem.copy(title = it)
+                        )
+                    }
+                )
+                SingleNoteTextField(
+                    modifier = Modifier
+                        .testTag(SingleNoteTag.content)
+                        .fillMaxHeight()
+                        .verticalScroll(rememberScrollState()),
+                    placeholderText = "Start Typing",
+                    textStyle = MaterialTheme.typography.bodyLarge,
+                    value = singleNoteScreenUiState.singleNoteItem.content,
+                    onValueChange = {
+                        onValueChanged(
+                            singleNoteScreenUiState.singleNoteItem.copy(content = it)
+                        )
+                    }
+                )
+            }
+        }
+        is SingleNoteScreenUiState.Error -> {
+            ErrorDialog(errorMessage = singleNoteScreenUiState.errorMessage)
+        }
+        SingleNoteScreenUiState.Loading -> {
+            ProgressDialog()
+        }
     }
 }
 
@@ -84,8 +152,7 @@ internal fun SingleNoteScreenPreview(){
     SingleNoteScreen(
         {},
         {},
-        {},
-        SingleNoteScreenUiState.Content(SingleNoteItem("Help", "Help me")),
+        SingleNoteScreenUiState.Content(SingleNoteItem("", "")),
         SingleNoteScreenUiEvent.Idle,
         SnackbarHostState()
     )

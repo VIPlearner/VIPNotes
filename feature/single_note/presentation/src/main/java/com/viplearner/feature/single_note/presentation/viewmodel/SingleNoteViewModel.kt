@@ -7,6 +7,7 @@ import androidx.lifecycle.viewmodel.CreationExtras
 import com.eemmez.localization.LocalizationManager
 import com.viplearner.common.domain.Result
 import com.viplearner.common.domain.entity.NoteEntity
+import com.viplearner.feature.single_note.domain.usecase.CreateNoteUseCase
 import com.viplearner.feature.single_note.domain.usecase.GetNoteUseCase
 import com.viplearner.feature.single_note.domain.usecase.UpdateNoteUseCase
 import com.viplearner.feature.single_note.presentation.mapper.ErrorMessageMapper
@@ -19,23 +20,18 @@ import dagger.assisted.AssistedFactory
 import dagger.assisted.AssistedInject
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
+import timber.log.Timber
 
 class SingleNoteViewModel @AssistedInject constructor(
     @Assisted("noteUUID") private val noteUUID: String,
     private val getNoteUseCase: GetNoteUseCase,
+    private val createNoteUseCase: CreateNoteUseCase,
     private val updateNoteUseCase: UpdateNoteUseCase,
     private val errorMessageMapper: ErrorMessageMapper,
     private val localizationManager: LocalizationManager
 ) : ViewModel() {
-    private val _singleNoteScreenUiState = MutableStateFlow<SingleNoteScreenUiState>(SingleNoteScreenUiState.Loading)
-    val singleNoteScreenUiState: StateFlow<SingleNoteScreenUiState> = _singleNoteScreenUiState
-
-    private val _singleNoteScreenUiEvent = MutableStateFlow<SingleNoteScreenUiEvent>(SingleNoteScreenUiEvent.Idle)
-    val singleNoteScreenUiEvent: StateFlow<SingleNoteScreenUiEvent> = _singleNoteScreenUiEvent
-
-    private val _isUpdatingNote = MutableStateFlow(false)
-
     private var noteEntity: NoteEntity = NoteEntity(
         title = "",
         content = "",
@@ -43,18 +39,61 @@ class SingleNoteViewModel @AssistedInject constructor(
         timeLastEdited = System.currentTimeMillis(),
     )
 
+    private val _singleNoteScreenUiState = MutableStateFlow<SingleNoteScreenUiState>(SingleNoteScreenUiState.Loading)
+    val singleNoteScreenUiState: StateFlow<SingleNoteScreenUiState> = _singleNoteScreenUiState
+
+    private val _singleNoteScreenUiEvent = MutableStateFlow<SingleNoteScreenUiEvent>(SingleNoteScreenUiEvent.Idle)
+    val singleNoteScreenUiEvent: StateFlow<SingleNoteScreenUiEvent> = _singleNoteScreenUiEvent
+
     init {
-        if(noteUUID.isNotEmpty()){ getNote(noteUUID) }
+        Timber.tag("HelpModel").d("Creating Note ${noteUUID.isBlank()}")
+        if(noteUUID.isNotBlank()) getNote(noteUUID)
+        else createNote()
     }
 
     override fun onCleared() {
         super.onCleared()
-        updateNote(noteEntity.toSingleNoteItem())
+        if(noteEntity.title.isEmpty() && noteEntity.content.isEmpty()) {
+            // TODO :: Delete empty note
+        }
+        else{
+            updateNote(noteEntity.toSingleNoteItem())
+        }
     }
 
     private fun getNote(uuid: String) {
         viewModelScope.launch {
-            getNoteUseCase.invoke(uuid) { result ->
+            getNoteUseCase.invoke(uuid).collectLatest { result ->
+                when (result) {
+                    is Result.Success -> {
+                        result.data?.let { response ->
+                            noteEntity = response
+                            _singleNoteScreenUiState.value =
+                                SingleNoteScreenUiState.Content(response.toSingleNoteItem())
+                        }
+                    }
+                    is Result.Loading -> {
+                        Timber.tag("HelpModel").d("Started")
+                        _singleNoteScreenUiState.value = SingleNoteScreenUiState.Loading
+                    }
+
+                    is Result.Error -> {
+                        Timber.tag("HelpModel").d("Error")
+
+                        _singleNoteScreenUiState.value = SingleNoteScreenUiState.Error(
+                            errorMessage = errorMessageMapper.getErrorMessage(result.error)
+                        )
+                    }
+
+                    else -> {}
+                }
+            }
+        }
+    }
+
+    private fun createNote(){
+        viewModelScope.launch {
+            createNoteUseCase.invoke().collect{ result ->
                 when (result) {
                     is Result.Success -> {
                         result.data?.let { response ->
@@ -72,7 +111,6 @@ class SingleNoteViewModel @AssistedInject constructor(
                             errorMessage = errorMessageMapper.getErrorMessage(result.error)
                         )
                     }
-
                     else -> {}
                 }
             }
@@ -89,7 +127,7 @@ class SingleNoteViewModel @AssistedInject constructor(
                 title = singleNoteItem.title
                 timeLastEdited = System.currentTimeMillis()
             }
-            updateNoteUseCase.invoke(noteEntity){result ->
+            updateNoteUseCase.invoke(noteEntity).collectLatest{result ->
                 when (result) {
                     is Result.Success -> {
 

@@ -15,6 +15,7 @@ import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.flow.flowOn
 import kotlinx.coroutines.flow.onStart
+import timber.log.Timber
 
 class SingleNoteRepositoryImpl(
     private val singleNoteService: SingleNoteService,
@@ -22,26 +23,35 @@ class SingleNoteRepositoryImpl(
 ): SingleNoteRepository {
     override suspend fun updateNote(
         noteEntity: NoteEntity,
-        result: (Result<Unit, SingleNoteError>) -> Unit
-    ) {
+    ): Flow<Result<Unit, SingleNoteError>> =
         flow<Result<Unit, SingleNoteError>> {
             singleNoteService.updateNote(noteEntity.toNote())
-            result(Result.Success(Unit))
+            emit(Result.Success(Unit))
         }.onStart {
-            result(Result.Loading())
+            emit(Result.Loading())
         }.catch {
-            result(Result.Error(SingleNoteError.UpdateNoteError))
+            emit(Result.Error(SingleNoteError.UpdateNoteError))
         }.flowOn(ioDispatcher)
-    }
 
-    override suspend fun getNote(uuid: String, result: (Result<NoteEntity, SingleNoteError>) -> Unit) {
-        flow<Result<Unit, SingleNoteError>> {
-            val note = singleNoteService.getNote(uuid)
-            result(Result.Success(note.toNoteEntity()))
+
+    override suspend fun getNote(uuid: String) : Flow<Result<NoteEntity, SingleNoteError>> =
+        flow<Result<NoteEntity, SingleNoteError>> {
+            val newNote = singleNoteService.getNote(uuid)
+            emit(Result.Success(newNote.toNoteEntity()))
         }.onStart {
-            result(Result.Loading())
+            emit(Result.Loading())
         }.catch {
-            result(Result.Error(SingleNoteError.GetNoteError))
+            emit(Result.Error(SingleNoteError.CreateNoteError))
+        }.flowOn(ioDispatcher)
+
+
+    override suspend fun createNewNote(): Flow<Result<NoteEntity, SingleNoteError>> =
+        flow<Result<NoteEntity, SingleNoteError>> {
+            val newNote = singleNoteService.createNewNote()
+            emit(Result.Success(newNote.toNoteEntity()))
+        }.onStart {
+            emit(Result.Loading())
+        }.catch {
+            emit(Result.Error(SingleNoteError.CreateNoteError))
         }.flowOn(ioDispatcher)
     }
-}

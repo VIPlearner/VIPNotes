@@ -45,6 +45,7 @@ dependencies {
     implementation(libs.core.ktx)
     implementation(libs.kotlin.serialization)
     implementation(libs.hilt)
+    implementation(libs.localizationManager)
     kapt(libs.hilt.compiler)
     runtimeOnly(libs.room.runtime)
     ksp(libs.room.compiler)

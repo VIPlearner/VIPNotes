@@ -8,9 +8,7 @@ import timber.log.Timber
 class VIPNotesApp : Application(){
     override fun onCreate() {
 
-        if(BuildConfig.DEBUG){
-            Timber.plant(Timber.DebugTree())
-        }
+        Timber.plant(Timber.DebugTree())
 
         super.onCreate()
     }
