@@ -7,6 +7,8 @@ import com.viplearner.common.domain.entity.NoteEntity
 import kotlinx.coroutines.flow.Flow
 
 interface HomeRepository {
-    suspend fun getList(searchText: String, result: (Result<GetNoteEntityListResponse, HomeError>) -> Unit)
+    suspend fun getListBySearchText(searchText: String): Flow <Result<List<NoteEntity>, HomeError>>
+    suspend fun getList(): Flow <Result<List<NoteEntity>, HomeError>>
+    suspend fun deleteNotes(uuidList: List<String>): Flow<Result<Unit, HomeError>>
     suspend fun addNote(noteEntity: NoteEntity): Flow<Result<Unit, HomeError>>
 }

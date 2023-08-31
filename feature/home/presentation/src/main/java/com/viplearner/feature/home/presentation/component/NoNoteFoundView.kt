@@ -7,7 +7,7 @@ import com.viplearner.feature.home.presentation.R
 @Composable
 fun NoNoteFoundView(
     modifier: Modifier = Modifier,
-    noNoteFoundMessage: String
+    noNoteFoundMessage: String?
 ){
     EmptyListView(
         modifier = modifier,

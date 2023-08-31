@@ -24,4 +24,8 @@ class SingleNoteService @Inject constructor(
         notesDatabase.notesDao().upsert(newNote)
         return newNote
     }
+
+    fun deleteNote(
+        uuid: String,
+    ) = notesDatabase.notesDao().delete(uuid)
 }

@@ -11,7 +11,9 @@ class ErrorMessageMapper(
     fun getErrorMessage(error: HomeError?): String =
         when (error) {
             is HomeError.GetListError -> localizationManager.getString(R.string.some_list_error)
+            is HomeError.GetListBySearchTextError -> localizationManager.getString(R.string.get_list_by_search_error)
             is HomeError.AddNoteError -> localizationManager.getString(R.string.add_note_error)
+            is HomeError.DeleteNoteError -> localizationManager.getString(R.string.delete_note_error)
             else -> localizationManager.getString(commonResources.string.unknown_error)
         }
 

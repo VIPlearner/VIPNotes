@@ -1,9 +1,17 @@
 package com.viplearner.feature.home.presentation
 
 import android.content.res.Configuration
+import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.animation.animateContentSize
+import androidx.compose.animation.core.tween
+import androidx.compose.animation.fadeIn
+import androidx.compose.animation.fadeOut
+import androidx.compose.animation.slideInVertically
+import androidx.compose.animation.slideOutVertically
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.wrapContentSize
 import androidx.compose.material3.MaterialTheme
@@ -11,50 +19,104 @@ import androidx.compose.material3.SnackbarHost
 import androidx.compose.material3.SnackbarHostState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.saveable.rememberSaveable
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import com.eemmez.localization.LocalizationManager
 import com.viplearner.common.presentation.component.ErrorDialog
 import com.viplearner.common.presentation.component.ProgressDialog
 import com.viplearner.feature.home.presentation.component.EmptyListView
 import com.viplearner.feature.home.presentation.component.List
-import com.viplearner.feature.home.presentation.component.NoNoteFoundView
 import com.viplearner.feature.home.presentation.component.NotesFloatingActionButton
-import com.viplearner.feature.home.presentation.component.SearchBox
 import com.viplearner.common.presentation.component.Template
+import com.viplearner.common.presentation.util.rememberLocalizationManager
+import com.viplearner.feature.home.presentation.component.HomeBottomBar
+import com.viplearner.feature.home.presentation.component.HomeTopBar
+import com.viplearner.feature.home.presentation.component.NoNoteFoundView
 import com.viplearner.feature.home.presentation.model.NoteItem
 import com.viplearner.feature.home.presentation.state.HomeScreenUiEvent
 import com.viplearner.feature.home.presentation.state.HomeScreenUiState
 
 @Composable
 fun HomeRoute(
-    onItemClick: (String) -> Unit,
+    onNavigateToNote: (String) -> Unit,
     onAddNoteClicked: (String) -> Unit,
     viewModel: HomeViewModel = hiltViewModel(),
 ) {
     val homeScreenUiState by viewModel.homeScreenUiState.collectAsStateWithLifecycle()
     val homeScreenUiEvent by viewModel.homeScreenUiEvent.collectAsStateWithLifecycle()
+    val localizationManager = rememberLocalizationManager()
     val snackbarHostState = remember {
         SnackbarHostState()
     }
+    val isSelectionMode =
+        homeScreenUiState is HomeScreenUiState.Content.NormalMode && (homeScreenUiState as HomeScreenUiState.Content.NormalMode).isSelectionMode
+
+    var searchValue by rememberSaveable { mutableStateOf("") }
 
     HomeScreen(
-        onTextChanged = { searchText ->
-            viewModel.getList(searchText)
+        searchValue = searchValue,
+        localizationManager = localizationManager,
+        isAllSelected = homeScreenUiState.let {
+            when (it) {
+                is HomeScreenUiState.Content.NormalMode -> {
+                    it.list.all { it.isSelected }
+                }
+
+                else -> false
+            }
+        },
+        onSearchTextChanged = { searchText ->
+            searchValue = searchText
+            viewModel.getListBySearchText(searchValue)
+        },
+        onSelectionModeCancelled = {
+            viewModel.getList()
+        },
+        onSearchMode = {
+            searchValue = ""
+            viewModel.getListBySearchText(searchValue)
+        },
+        onSearchCancelled = {
+            viewModel.getList()
+        },
+        onSelectAll = {
+            viewModel.selectAll()
+        },
+        onSelectItem = {
+            viewModel.selectNote(it)
         },
         onAddNoteClick = {
             onAddNoteClicked(" ")
         },
-        onItemClick = { noteItem ->
-            onItemClick.invoke(noteItem.uuid)
+        onDeleteNoteClicked = { noteItemList ->
+            viewModel.deleteNote(noteItemList)
         },
-        onItemLongClick = { homeListItem ->
-//            viewModel.addNote(homeListItem)
+        onItemClick = { noteItem ->
+            if (!isSelectionMode) {
+                onNavigateToNote.invoke(noteItem.uuid)
+            } else {
+                viewModel.selectNote(
+                    noteItem
+                )
+            }
+        },
+        onItemLongClick = { noteItem ->
+            viewModel.selectNote(
+                noteItem
+            )
+        },
+        onDeselectAll = {
+            viewModel.deselectAll()
         },
         homeScreenUiState = homeScreenUiState,
         homeScreenUiEvent = homeScreenUiEvent,
@@ -64,32 +126,83 @@ fun HomeRoute(
 
 @Composable
 internal fun HomeScreen(
-    onTextChanged: (String) -> Unit,
+    searchValue: String,
+    isAllSelected: Boolean,
+    localizationManager: LocalizationManager,
     onAddNoteClick: () -> Unit,
+    onSearchMode: () -> Unit,
+    onSearchTextChanged: (String) -> Unit,
+    onSelectionModeCancelled: () -> Unit,
+    onSelectItem: (NoteItem) -> Unit,
+    onDeleteNoteClicked: (List<NoteItem>) -> Unit,
     onItemClick: (NoteItem) -> Unit,
     onItemLongClick: (NoteItem) -> Unit,
+    onSelectAll: () -> Unit,
+    onDeselectAll: () -> Unit,
+    onSearchCancelled: () -> Unit,
     homeScreenUiState: HomeScreenUiState,
     homeScreenUiEvent: HomeScreenUiEvent,
     snackbarHostState: SnackbarHostState
 ) {
     Template(
         modifier = Modifier
-            .background(MaterialTheme.colorScheme.background)
-        ,
+            .background(MaterialTheme.colorScheme.background),
         topBar = {
-            SearchBox(
-                modifier = Modifier.padding(vertical = 10.dp, horizontal = 20.dp),
-                onTextChanged = onTextChanged
+            HomeTopBar(
+                modifier = Modifier.fillMaxWidth(),
+                searchValue = searchValue,
+                isAllSelected = isAllSelected,
+                onSearchMode = onSearchMode,
+                onSearchTextChanged = onSearchTextChanged,
+                onSelectionModeCancelled = onSelectionModeCancelled,
+                onSelectAll = onSelectAll,
+                onDeselectAll = onDeselectAll,
+                localizationManager = localizationManager,
+                onSearchCancelled = onSearchCancelled,
+                homeScreenUiState = homeScreenUiState
             )
         },
+        bottomBar = {
+            AnimatedVisibility(
+                visible = homeScreenUiState is HomeScreenUiState.Content.NormalMode && homeScreenUiState.isSelectionMode,
+                enter = slideInVertically(
+                    initialOffsetY = { it }
+                ) + fadeIn(),
+                exit = slideOutVertically(
+                    targetOffsetY = { it }
+                ) + fadeOut()
+            ) {
+                HomeBottomBar(
+                    modifier = Modifier,
+                    isAllDeselected = homeScreenUiState is HomeScreenUiState.Content.NormalMode && homeScreenUiState.list.all { !it.isSelected },
+                    onPinItems = { /*TODO*/ },
+                    onDelete = {
+                        onDeleteNoteClicked(
+                            (homeScreenUiState as HomeScreenUiState.Content.NormalMode).list.filter { it.isSelected }
+                        )
+                    }
+                )
+            }
+        },
         floatingActionButton = {
-            NotesFloatingActionButton {
-                onAddNoteClick()
+            AnimatedVisibility(
+                visible = (homeScreenUiState is HomeScreenUiState.Content.NormalMode &&
+                        homeScreenUiState.isSelectionMode.not()) ||
+                        homeScreenUiState is HomeScreenUiState.Empty,
+                enter = fadeIn(),
+                exit = fadeOut()
+            ) {
+                NotesFloatingActionButton {
+                    onAddNoteClick()
+                }
             }
         }
     ) {
         HomeContent(
-            modifier = Modifier.padding(it).padding(horizontal = 20.dp),
+            modifier = Modifier
+                .padding(it)
+                .animateContentSize(tween())
+                .padding(horizontal = 20.dp),
             onItemClick = onItemClick,
             onItemLongClick = onItemLongClick,
             homeScreenUiState = homeScreenUiState,
@@ -110,14 +223,28 @@ internal fun HomeContent(
 ) {
     when (homeScreenUiState) {
         is HomeScreenUiState.Content -> {
-            List(
-                modifier = modifier
-                    .padding()
-                    .testTag(HomeTag.list),
-                listItems = homeScreenUiState.list,
-                onItemClick = onItemClick,
-                onItemLongClick = onItemLongClick
-            )
+            when (homeScreenUiState) {
+                is HomeScreenUiState.Content.NormalMode -> List(
+                    modifier = modifier
+                        .padding()
+                        .testTag(HomeTag.list),
+                    isSelectionMode = homeScreenUiState.isSelectionMode,
+                    listItems = homeScreenUiState.list,
+                    onItemClick = onItemClick,
+                    onItemLongClick = onItemLongClick
+                )
+
+                is HomeScreenUiState.Content.SearchMode -> List(
+                    modifier = modifier
+                        .padding()
+                        .testTag(HomeTag.list),
+                    isSelectionMode = false,
+                    listItems = homeScreenUiState.list,
+                    onItemClick = onItemClick,
+                    onItemLongClick = { }
+                )
+
+            }
         }
 
         is HomeScreenUiState.Loading -> {
@@ -133,16 +260,18 @@ internal fun HomeContent(
 
         is HomeScreenUiState.Empty -> {
             EmptyListView(
-                modifier = Modifier.testTag(HomeTag.emptyMessage),
+                modifier = modifier.testTag(HomeTag.emptyMessage),
                 message = homeScreenUiState.emptyMessage
             )
         }
+
         is HomeScreenUiState.NoNoteFound -> {
             NoNoteFoundView(
-                modifier = Modifier.testTag(HomeTag.noNoteFound),
+                modifier = modifier.testTag(HomeTag.noNoteFound),
                 noNoteFoundMessage = homeScreenUiState.noNoteFoundMessage
             )
         }
+
     }
 
     when (homeScreenUiEvent) {
@@ -166,20 +295,28 @@ internal fun HomeContent(
     }
 }
 
-@Preview(backgroundColor = 0xFFFFFFFF,
+@Preview(
+    backgroundColor = 0xFFFFFFFF,
     uiMode = Configuration.UI_MODE_NIGHT_YES or Configuration.UI_MODE_TYPE_NORMAL,
     showBackground = true
 )
 @Composable
-fun HomeScreenPreview(){
+fun HomeScreenPreview() {
+    val searchValue by remember {
+        mutableStateOf("")
+    }
+    var isAllSelected by remember {
+        mutableStateOf(false)
+    }
     val loading = HomeScreenUiState.Loading
-    val content = HomeScreenUiState.Content(
+    val content = HomeScreenUiState.Content.NormalMode(
         listOf(
             NoteItem(
                 "902930",
                 "How to make pancakes",
                 "Whisk the eggs to make pancakes for the house to eat fro the bowl",
                 18037723902,
+                false,
                 false
             ),
             NoteItem(
@@ -187,19 +324,55 @@ fun HomeScreenPreview(){
                 "How to make pancakes",
                 "Whisk the eggs to make pancakes for the house to eat fro the bowl",
                 1897902028,
+                false,
+                false
+            )
+        ),
+        true
+    )
+    val search = HomeScreenUiState.Content.SearchMode(
+        listOf(
+            NoteItem(
+                "902930",
+                "How to make pancakes",
+                "Whisk the eggs to make pancakes for the house to eat fro the bowl",
+                18037723902,
+                false,
+                false
+            ),
+            NoteItem(
+                "902930",
+                "How to make pancakes",
+                "Whisk the eggs to make pancakes for the house to eat fro the bowl",
+                1897902028,
+                false,
                 false
             )
         )
     )
     val empty = HomeScreenUiState.Empty("Create your first note!")
     HomeScreen(
-        onTextChanged = {},
+        searchValue = searchValue,
+        isAllSelected = isAllSelected,
+        localizationManager = LocalizationManager(context = LocalContext.current),
+        onSearchTextChanged = {},
         onAddNoteClick = {},
+        onSearchCancelled = {},
+        onSelectAll = {
+            isAllSelected = true
+        },
+        onDeselectAll = {
+            isAllSelected = false
+        },
+        onSearchMode = {},
+        onSelectItem = {},
+        onSelectionModeCancelled = {},
         onItemClick = {},
         onItemLongClick = {},
-        homeScreenUiState = content,
+        onDeleteNoteClicked = {},
+        homeScreenUiState = search,
         homeScreenUiEvent = HomeScreenUiEvent.Idle,
-        snackbarHostState = remember{
+        snackbarHostState = remember {
             SnackbarHostState()
         }
     )

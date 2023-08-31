@@ -9,5 +9,6 @@ interface SingleNoteRepository {
     suspend fun updateNote(noteEntity: NoteEntity) : Flow<Result<Unit, SingleNoteError>>
     suspend fun getNote(uuid: String): Flow<Result<NoteEntity, SingleNoteError>>
     suspend fun createNewNote() : Flow<Result<NoteEntity, SingleNoteError>>
+    suspend fun deleteNote(uuid: String): Flow<Result<Unit, SingleNoteError>>
 
 }

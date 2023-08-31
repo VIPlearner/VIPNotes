@@ -8,6 +8,7 @@ import com.eemmez.localization.LocalizationManager
 import com.viplearner.common.domain.Result
 import com.viplearner.common.domain.entity.NoteEntity
 import com.viplearner.feature.single_note.domain.usecase.CreateNoteUseCase
+import com.viplearner.feature.single_note.domain.usecase.DeleteNoteUseCase
 import com.viplearner.feature.single_note.domain.usecase.GetNoteUseCase
 import com.viplearner.feature.single_note.domain.usecase.UpdateNoteUseCase
 import com.viplearner.feature.single_note.presentation.mapper.ErrorMessageMapper
@@ -29,6 +30,7 @@ class SingleNoteViewModel @AssistedInject constructor(
     private val getNoteUseCase: GetNoteUseCase,
     private val createNoteUseCase: CreateNoteUseCase,
     private val updateNoteUseCase: UpdateNoteUseCase,
+    private val deleteNoteUseCase: DeleteNoteUseCase,
     private val errorMessageMapper: ErrorMessageMapper,
     private val localizationManager: LocalizationManager
 ) : ViewModel() {
@@ -46,19 +48,8 @@ class SingleNoteViewModel @AssistedInject constructor(
     val singleNoteScreenUiEvent: StateFlow<SingleNoteScreenUiEvent> = _singleNoteScreenUiEvent
 
     init {
-        Timber.tag("HelpModel").d("Creating Note ${noteUUID.isBlank()}")
         if(noteUUID.isNotBlank()) getNote(noteUUID)
         else createNote()
-    }
-
-    override fun onCleared() {
-        super.onCleared()
-        if(noteEntity.title.isEmpty() && noteEntity.content.isEmpty()) {
-            // TODO :: Delete empty note
-        }
-        else{
-            updateNote(noteEntity.toSingleNoteItem())
-        }
     }
 
     private fun getNote(uuid: String) {
@@ -143,6 +134,36 @@ class SingleNoteViewModel @AssistedInject constructor(
                     else -> {}
                 }
             }
+        }
+    }
+
+    private fun deleteNote() {
+        viewModelScope.launch {
+            deleteNoteUseCase.invoke(noteEntity.uuid).collectLatest{result ->
+                when (result) {
+                    is Result.Success -> {
+                        Timber.tag("HelpModel").d("Delete Success")
+                    }
+
+                    is Result.Loading -> {
+                        Timber.tag("HelpModel").d("Delete Loading")
+                    }
+
+                    is Result.Error -> {
+                        Timber.tag("HelpModel").d("Delete Error")
+                    }
+                    else -> {}
+                }
+            }
+        }
+    }
+
+    fun close(){
+        if(noteEntity.title.isEmpty() && noteEntity.content.isEmpty()) {
+            deleteNote()
+        }
+        else{
+            updateNote(noteEntity.toSingleNoteItem())
         }
     }
 

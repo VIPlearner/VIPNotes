@@ -10,4 +10,5 @@ data class NoteItem(
     val content: String,
     val timeLastEdited: Long,
     val isPinned: Boolean,
+    val isSelected: Boolean
 ): Parcelable

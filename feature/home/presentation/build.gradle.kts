@@ -54,6 +54,7 @@ dependencies {
     implementation(project(":common:domain"))
     implementation(project(":common:presentation"))
     implementation(project(":feature:home:domain"))
+    implementation(libs.icons.extended)
     implementation(libs.core.ktx)
     implementation(libs.lifecycle.runtime.ktx)
     implementation(libs.lifecycle.runtime.compose)

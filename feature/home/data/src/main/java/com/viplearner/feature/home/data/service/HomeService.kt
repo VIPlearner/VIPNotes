@@ -17,6 +17,10 @@ class HomeService @Inject constructor(
     ): Flow<List<Note>> =
         notesDatabase.notesDao().getNotesBySearchText(searchText)
 
+    fun deleteNotes(
+        uuidList: List<String>,
+    ) = uuidList.forEach{ uuid -> notesDatabase.notesDao().delete(uuid) }
+
     fun addNote(note: Note) {
         notesDatabase.notesDao().upsert(note)
     }

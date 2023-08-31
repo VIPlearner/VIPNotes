@@ -14,6 +14,7 @@ import androidx.compose.ui.unit.dp
 @Composable
 fun Template(
     modifier: Modifier = Modifier,
+    bottomBar: @Composable () -> Unit = {},
     topBar: @Composable () -> Unit = {},
     floatingActionButton: @Composable () -> Unit = {},
     content: @Composable (PaddingValues) -> Unit
@@ -26,6 +27,7 @@ fun Template(
         Scaffold(
             content = content,
             topBar = topBar,
+            bottomBar = bottomBar,
             floatingActionButton = floatingActionButton,
             modifier = Modifier
                 .fillMaxSize()

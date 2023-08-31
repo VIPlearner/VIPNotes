@@ -29,11 +29,13 @@ import com.viplearner.common.presentation.component.ErrorDialog
 import com.viplearner.common.presentation.component.ProgressDialog
 import com.viplearner.common.presentation.component.Template
 import com.viplearner.feature.single_note.presentation.component.SingleNoteTextField
+import com.viplearner.feature.single_note.presentation.mapper.toSingleNoteItem
 import com.viplearner.feature.single_note.presentation.model.SingleNoteItem
 import com.viplearner.feature.single_note.presentation.state.SingleNoteScreenUiEvent
 import com.viplearner.feature.single_note.presentation.state.SingleNoteScreenUiState
 import com.viplearner.feature.single_note.presentation.viewmodel.SingleNoteViewModel
 import com.viplearner.feature.single_note.presentation.viewmodel.singleNoteViewModelProvider
+import timber.log.Timber
 
 @Composable
 fun SingleNoteRoute(
@@ -51,11 +53,19 @@ fun SingleNoteRoute(
         SnackbarHostState()
     }
 
+    BackPressHandler {
+        viewModel.close()
+        onBackClick()
+    }
+
     SingleNoteScreen(
         onValueChanged = {
             viewModel.updateNote(it)
         },
-        onBackClick = onBackClick,
+        onBackClick = {
+            viewModel.close()
+            onBackClick()
+        },
         singleNoteScreenUiState = singleNoteScreenUiState,
         singleNoteScreenUiEvent = singleNoteScreenUiEvent,
         snackbarHostState = snackbarHostState

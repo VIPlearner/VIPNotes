@@ -54,4 +54,14 @@ class SingleNoteRepositoryImpl(
         }.catch {
             emit(Result.Error(SingleNoteError.CreateNoteError))
         }.flowOn(ioDispatcher)
-    }
+
+    override suspend fun deleteNote(uuid: String): Flow<Result<Unit, SingleNoteError>> =
+        flow<Result<Unit, SingleNoteError>> {
+            singleNoteService.deleteNote(uuid)
+            emit(Result.Success(Unit))
+        }.onStart {
+            emit(Result.Loading())
+        }.catch {
+            emit(Result.Error(SingleNoteError.UpdateNoteError))
+        }.flowOn(ioDispatcher)
+}

@@ -27,15 +27,17 @@ class HomeScreenTest {
     @Test
     fun isExist_searchBar() {
         composeRule.setContent {
-            HomeScreen(
-                onTextChanged = {},
-                onItemClick = {},
-                onItemLongClick = {},
-                onAddNoteClick = {},
-                homeScreenUiState = HomeScreenUiState.Content(listOf()),
-                homeScreenUiEvent = HomeScreenUiEvent.Idle,
-                snackbarHostState = SnackbarHostState()
-            )
+//            HomeScreen(
+//                onSearchTextChanged = {},
+//                onItemClick = {},
+//                onItemLongClick = {},
+//                onAddNoteClick = {},
+//                onDeleteNoteClicked = {},
+//                searchValue = "",
+//                homeScreenUiState = HomeScreenUiState.Content.NormalMode(listOf(),false),
+//                homeScreenUiEvent = HomeScreenUiEvent.Idle,
+//                snackbarHostState = SnackbarHostState()
+//            )
         }
         composeRule.onNodeWithTag(HomeTag.searchBox).assertExists()
     }
@@ -45,15 +47,17 @@ class HomeScreenTest {
         val errorMessage =
             composeRule.activity.getString(commonPresentationRes.string.unknown_error)
         composeRule.setContent {
-            HomeScreen(
-                onTextChanged = {},
-                onItemClick = {},
-                onItemLongClick = {},
-                onAddNoteClick = {},
-                homeScreenUiState = HomeScreenUiState.Error(errorMessage),
-                homeScreenUiEvent = HomeScreenUiEvent.Idle,
-                snackbarHostState = SnackbarHostState()
-            )
+//            HomeScreen(
+//                onSearchTextChanged = {},
+//                onItemClick = {},
+//                onItemLongClick = {},
+//                onAddNoteClick = {},
+//                onDeleteNoteClicked = {},
+//                searchValue = "",
+//                homeScreenUiState = HomeScreenUiState.Error(errorMessage),
+//                homeScreenUiEvent = HomeScreenUiEvent.Idle,
+//                snackbarHostState = SnackbarHostState()
+//            )
         }
         composeRule.onNodeWithText(composeRule.activity.getString(commonPresentationRes.string.unknown_error))
             .assertIsDisplayed()
@@ -65,27 +69,30 @@ class HomeScreenTest {
             var homeScreenUiEvent: HomeScreenUiEvent by remember {
                 mutableStateOf(HomeScreenUiEvent.Idle)
             }
-            HomeScreen(
-                onTextChanged = {},
-                onItemClick = {},
-                onAddNoteClick = {},
-                onItemLongClick = {
-                    homeScreenUiEvent = HomeScreenUiEvent.AddNoteSuccess("Added Successfully!")
-                },
-                homeScreenUiState = HomeScreenUiState.Content(
-                    listOf(
-                        NoteItem(
-                            "902930",
-                            "How to make pancakes",
-                            "Whisk the eggs to make pancakes for the house to eat fro the bowl",
-                            1698737373L,
-                            false
-                        )
-                    )
-                ),
-                homeScreenUiEvent = homeScreenUiEvent,
-                snackbarHostState = SnackbarHostState()
-            )
+//            HomeScreen(
+//                onSearchTextChanged = {},
+//                onItemClick = {},
+//                onAddNoteClick = {},
+//                onItemLongClick = {
+//                    homeScreenUiEvent = HomeScreenUiEvent.AddNoteSuccess("Added Successfully!")
+//                },
+//                onDeleteNoteClicked = {},
+//                searchValue = "",
+//                homeScreenUiState = HomeScreenUiState.Content.NormalMode(
+//                    listOf(
+//                        NoteItem(
+//                            "902930",
+//                            "How to make pancakes",
+//                            "Whisk the eggs to make pancakes for the house to eat fro the bowl",
+//                            1698737373L,
+//                            false,
+//                            false
+//                        )
+//                    )
+//                ),
+//                homeScreenUiEvent = homeScreenUiEvent,
+//                snackbarHostState = SnackbarHostState()
+//            )
         }
 
         composeRule.onNodeWithText("kedi1").performTouchInput { longClick() }

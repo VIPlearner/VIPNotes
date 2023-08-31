@@ -1,8 +1,17 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <string name="some_list_error">Some list error</string>
+    <string name="some_list_error">Unable to load notes</string>
+    <string name="get_list_by_search_error">Unable to load notes with this query %s</string>
     <string name="add_note_error">Can not add to notes</string>
     <string name="add_favourite_success">Successfully added!</string>
     <string name="create_your_first_note">Create your first note!</string>
     <string name="no_note_found">No results found</string>
+    <string name="delete_note_error">Unable to delete Note</string>
+    <string name="note_deleted">Note deleted</string>
+    <string name="note_deleted_error">Unable to delete error</string>
+    <string name="select_items">Select Items</string>
+    <string name="select_all">Select All</string>
+    <string name="cancel_selection_mode">Cancel Selection Mode</string>
+    <string name="pin">Pin</string>
+    <string name="delete">Delete</string>
 </resources>

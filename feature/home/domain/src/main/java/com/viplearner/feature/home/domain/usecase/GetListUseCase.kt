@@ -9,7 +9,6 @@ import javax.inject.Inject
 class GetListUseCase @Inject constructor(
     private val homeRepository: HomeRepository
 ) {
-    suspend operator fun invoke(searchText: String, result: (Result<GetNoteEntityListResponse, HomeError>) -> Unit) {
-        homeRepository.getList(searchText, result)
-    }
+    suspend operator fun invoke() =
+        homeRepository.getList()
 }

@@ -19,7 +19,7 @@ import com.viplearner.feature.home.presentation.R
 fun EmptyListView(
     modifier: Modifier = Modifier,
     @DrawableRes imgRes: Int = R.drawable.empty_note,
-    message: String
+    message: String?
 ){
     Box(modifier = modifier.fillMaxSize()) {
         Column(
@@ -32,11 +32,13 @@ fun EmptyListView(
                 painter = painterResource(id = imgRes),
                 contentDescription = null
             )
-            Text(
-                modifier = Modifier.fillMaxWidth(),
-                text = message,
-                textAlign = TextAlign.Center
-            )
+            message?.let {
+                Text(
+                    modifier = Modifier.fillMaxWidth(),
+                    text = it,
+                    textAlign = TextAlign.Center
+                )
+            }
         }
     }
 }

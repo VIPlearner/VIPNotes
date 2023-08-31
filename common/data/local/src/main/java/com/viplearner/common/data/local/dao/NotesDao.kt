@@ -8,7 +8,8 @@ import kotlinx.coroutines.flow.Flow
 
 @Dao
 interface NotesDao {
-    @Query("SELECT * from Notes")
+    @Query("SELECT * from Notes" +
+            " ORDER BY timeLastEdited DESC")
     fun getAll(): Flow<List<Note>>
 
     @Query("SELECT * " +

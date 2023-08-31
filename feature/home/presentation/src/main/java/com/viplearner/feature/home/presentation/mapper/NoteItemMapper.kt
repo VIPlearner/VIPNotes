@@ -6,10 +6,11 @@ import com.viplearner.feature.home.presentation.model.NoteItem
 fun NoteEntity.toNoteItem() =
     NoteItem(
         uuid,
-        title,
-        content,
+        title.replace("\n", "\t"),
+        content.replace("\n", "\t"),
         timeLastEdited,
-        isPinned
+        isPinned,
+        false
     )
 
 //fun NoteItem.toNoteEntity() =

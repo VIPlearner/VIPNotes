@@ -1,5 +1,8 @@
 package com.viplearner.feature.single_note.presentation
 
+import androidx.compose.animation.EnterTransition
+import androidx.compose.animation.slideInHorizontally
+import androidx.compose.animation.slideOutHorizontally
 import androidx.navigation.NavGraphBuilder
 import androidx.navigation.NavType
 import androidx.navigation.compose.composable
@@ -24,7 +27,13 @@ fun NavGraphBuilder.singleNoteRoute(
             navArgument(SingleNoteNavigation.singleNoteEntityArg) {
                 type = NavType.StringType
             }
-        )
+        ),
+        enterTransition = {
+            slideInHorizontally(initialOffsetX = {it})
+        },
+        exitTransition = {
+            slideOutHorizontally(targetOffsetX = {it})
+        }
     ) {
         it.arguments?.getString(SingleNoteNavigation.singleNoteEntityArg)
         ?.let { noteUUID ->
