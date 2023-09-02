@@ -43,8 +43,9 @@ fun HomeTopBar(
     onSearchCancelled: () -> Unit,
     homeScreenUiState: HomeScreenUiState
 ) {
-    val searchMode = homeScreenUiState is HomeScreenUiState.Content.SearchMode
-    val isSelectionMode = homeScreenUiState is HomeScreenUiState.Content.NormalMode && homeScreenUiState.isSelectionMode
+    val searchMode = homeScreenUiState is HomeScreenUiState.Content.SearchMode || homeScreenUiState is HomeScreenUiState.NoNoteFound
+    val isSelectionMode =
+        homeScreenUiState is HomeScreenUiState.Content.NormalMode && homeScreenUiState.isSelectionMode
     val searchClickEnabled = homeScreenUiState is HomeScreenUiState.Content.NormalMode
     Column(modifier = modifier) {
         TopAppBar(
@@ -66,9 +67,19 @@ fun HomeTopBar(
                 }
             },
             actions = {
-                TextButton(onClick = onSelectAll) {
+                TextButton(
+                    onClick = {
+                        if (!isAllSelected) onSelectAll() else onDeselectAll()
+                    }
+                ) {
                     Text(
-                        text = localizationManager.getString(R.string.select_all)
+                        text = if (!isAllSelected)
+                            localizationManager.getString(
+                                R.string.select_all
+                            ) else
+                                localizationManager.getString(
+                                    R.string.deselect_all
+                                )
                     )
                 }
             }

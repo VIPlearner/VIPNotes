@@ -5,5 +5,7 @@ sealed class HomeError {
     data object GetListBySearchTextError : HomeError()
     data object AddNoteError : HomeError()
     data object DeleteNoteError : HomeError()
+    data object PinNotesError : HomeError()
+    data object UnpinNotesError : HomeError()
     data object UnknownError : HomeError()
 }

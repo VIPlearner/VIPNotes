@@ -32,8 +32,10 @@ import com.viplearner.feature.home.presentation.R
 @Composable
 fun HomeBottomBar(
     modifier: Modifier,
+    allSelectedIsPinned: Boolean,
     isAllDeselected: Boolean,
     onPinItems: () -> Unit,
+    onUnpinItems: () -> Unit,
     onDelete: () -> Unit,
 ) {
     val localizationManager = rememberLocalizationManager()
@@ -50,11 +52,13 @@ fun HomeBottomBar(
             BottomBarIcon(
                 enabled = !isAllDeselected,
                 icon = Icons.Default.PushPin,
-                text = localizationManager.getString(
+                text = if(!allSelectedIsPinned)localizationManager.getString(
                     R.string.pin
+                ) else localizationManager.getString(
+                    R.string.unpin
                 )
             ) {
-                onPinItems()
+                if(!allSelectedIsPinned)onPinItems() else onUnpinItems()
             }
             BottomBarIcon(
                 enabled = !isAllDeselected,
@@ -112,9 +116,11 @@ fun HomeBottomBarPreview() {
     Box(modifier = Modifier.fillMaxSize()) {
         HomeBottomBar(
             modifier = Modifier.align(Alignment.BottomCenter),
+            allSelectedIsPinned = true,
             isAllDeselected = true,
             onDelete = {},
-            onPinItems = {}
+            onPinItems = {},
+            onUnpinItems = {}
         )
     }
 }

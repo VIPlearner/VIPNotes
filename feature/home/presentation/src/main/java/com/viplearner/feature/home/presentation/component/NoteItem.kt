@@ -22,6 +22,7 @@ import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Check
+import androidx.compose.material.icons.filled.PushPin
 import androidx.compose.material.ripple.rememberRipple
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
@@ -93,15 +94,28 @@ fun NoteItem(
                     maxLines = 1
                 )
                 Spacer(modifier = Modifier.height(5.dp))
-                Text(
-                    modifier = Modifier,
-                    text = noteItem.timeLastEdited.epochTo12HrFormat(),
-                    style = MaterialTheme.typography.labelSmall,
-                    overflow = TextOverflow.Ellipsis,
-                    fontWeight = FontWeight.Light,
-                    color = MaterialTheme.colorScheme.outline,
-                    maxLines = 1
-                )
+                Row(
+                    verticalAlignment = Alignment.CenterVertically
+                ){
+                    Text(
+                        modifier = Modifier,
+                        text = noteItem.timeLastEdited.epochTo12HrFormat(),
+                        style = MaterialTheme.typography.labelSmall,
+                        overflow = TextOverflow.Ellipsis,
+                        fontWeight = FontWeight.Light,
+                        color = MaterialTheme.colorScheme.outline,
+                        maxLines = 1
+                    )
+                    AnimatedVisibility(visible = noteItem.isPinned) {
+                        Icon(
+                            imageVector = Icons.Default.PushPin,
+                            contentDescription = "pin",
+                            modifier = Modifier
+                                .size(12.dp),
+                            tint = MaterialTheme.colorScheme.primary
+                        )
+                    }
+                }
             }
             Spacer(modifier = Modifier.width(10.dp))
             AnimatedVisibility(

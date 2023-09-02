@@ -8,10 +8,16 @@
     <string name="no_note_found">No results found</string>
     <string name="delete_note_error">Unable to delete Note</string>
     <string name="note_deleted">Note deleted</string>
-    <string name="note_deleted_error">Unable to delete error</string>
     <string name="select_items">Select Items</string>
     <string name="select_all">Select All</string>
     <string name="cancel_selection_mode">Cancel Selection Mode</string>
     <string name="pin">Pin</string>
     <string name="delete">Delete</string>
+    <string name="deselect_all">Deselect All</string>
+    <string name="search">Search...</string>
+    <string name="pin_note_error">Unable to pin note</string>
+    <string name="note_pinned">Note pinned successfully</string>
+    <string name="unpin_note_error">Unable to unpin Notes</string>
+    <string name="note_unpinned">Notes unpinned Successfully</string>
+    <string name="unpin">Unpin</string>
 </resources>

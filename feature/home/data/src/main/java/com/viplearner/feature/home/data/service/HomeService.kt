@@ -21,6 +21,26 @@ class HomeService @Inject constructor(
         uuidList: List<String>,
     ) = uuidList.forEach{ uuid -> notesDatabase.notesDao().delete(uuid) }
 
+    fun pinNotes(
+        uuidList: List<String>,
+    ) {
+        uuidList.forEach{ uuid ->
+            val note = notesDatabase.notesDao().getNoteUsingUUID(uuid)
+            note.isPinned = true
+            notesDatabase.notesDao().upsert(note)
+        }
+    }
+
+    fun unpinNotes(
+        uuidList: List<String>,
+    ) {
+        uuidList.forEach{ uuid ->
+            val note = notesDatabase.notesDao().getNoteUsingUUID(uuid)
+            note.isPinned = false
+            notesDatabase.notesDao().upsert(note)
+        }
+    }
+
     fun addNote(note: Note) {
         notesDatabase.notesDao().upsert(note)
     }

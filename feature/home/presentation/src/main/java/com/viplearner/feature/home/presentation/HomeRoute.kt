@@ -87,19 +87,23 @@ fun HomeRoute(
             viewModel.getListBySearchText(searchValue)
         },
         onSearchCancelled = {
+            searchValue = ""
             viewModel.getList()
         },
         onSelectAll = {
             viewModel.selectAll()
         },
-        onSelectItem = {
-            viewModel.selectNote(it)
+        onPinItems = {
+            viewModel.pinNotes((homeScreenUiState as HomeScreenUiState.Content.NormalMode).list.filter { it.isSelected })
+        },
+        onUnpinItems = {
+            viewModel.unpinNotes((homeScreenUiState as HomeScreenUiState.Content.NormalMode).list.filter { it.isSelected })
         },
         onAddNoteClick = {
             onAddNoteClicked(" ")
         },
-        onDeleteNoteClicked = { noteItemList ->
-            viewModel.deleteNote(noteItemList)
+        onDeleteNotesClicked = {
+            viewModel.deleteNotes((homeScreenUiState as HomeScreenUiState.Content.NormalMode).list.filter { it.isSelected })
         },
         onItemClick = { noteItem ->
             if (!isSelectionMode) {
@@ -133,10 +137,11 @@ internal fun HomeScreen(
     onSearchMode: () -> Unit,
     onSearchTextChanged: (String) -> Unit,
     onSelectionModeCancelled: () -> Unit,
-    onSelectItem: (NoteItem) -> Unit,
-    onDeleteNoteClicked: (List<NoteItem>) -> Unit,
+    onDeleteNotesClicked: () -> Unit,
     onItemClick: (NoteItem) -> Unit,
     onItemLongClick: (NoteItem) -> Unit,
+    onPinItems: () -> Unit,
+    onUnpinItems: () -> Unit,
     onSelectAll: () -> Unit,
     onDeselectAll: () -> Unit,
     onSearchCancelled: () -> Unit,
@@ -144,60 +149,44 @@ internal fun HomeScreen(
     homeScreenUiEvent: HomeScreenUiEvent,
     snackbarHostState: SnackbarHostState
 ) {
-    Template(
-        modifier = Modifier
-            .background(MaterialTheme.colorScheme.background),
-        topBar = {
-            HomeTopBar(
-                modifier = Modifier.fillMaxWidth(),
-                searchValue = searchValue,
-                isAllSelected = isAllSelected,
-                onSearchMode = onSearchMode,
-                onSearchTextChanged = onSearchTextChanged,
-                onSelectionModeCancelled = onSelectionModeCancelled,
-                onSelectAll = onSelectAll,
-                onDeselectAll = onDeselectAll,
-                localizationManager = localizationManager,
-                onSearchCancelled = onSearchCancelled,
-                homeScreenUiState = homeScreenUiState
-            )
-        },
-        bottomBar = {
-            AnimatedVisibility(
-                visible = homeScreenUiState is HomeScreenUiState.Content.NormalMode && homeScreenUiState.isSelectionMode,
-                enter = slideInVertically(
-                    initialOffsetY = { it }
-                ) + fadeIn(),
-                exit = slideOutVertically(
-                    targetOffsetY = { it }
-                ) + fadeOut()
-            ) {
-                HomeBottomBar(
-                    modifier = Modifier,
-                    isAllDeselected = homeScreenUiState is HomeScreenUiState.Content.NormalMode && homeScreenUiState.list.all { !it.isSelected },
-                    onPinItems = { /*TODO*/ },
-                    onDelete = {
-                        onDeleteNoteClicked(
-                            (homeScreenUiState as HomeScreenUiState.Content.NormalMode).list.filter { it.isSelected }
-                        )
-                    }
-                )
-            }
-        },
-        floatingActionButton = {
-            AnimatedVisibility(
-                visible = (homeScreenUiState is HomeScreenUiState.Content.NormalMode &&
-                        homeScreenUiState.isSelectionMode.not()) ||
-                        homeScreenUiState is HomeScreenUiState.Empty,
-                enter = fadeIn(),
-                exit = fadeOut()
-            ) {
-                NotesFloatingActionButton {
-                    onAddNoteClick()
-                }
+    Template(modifier = Modifier.background(MaterialTheme.colorScheme.background), topBar = {
+        HomeTopBar(
+            modifier = Modifier.fillMaxWidth(),
+            searchValue = searchValue,
+            isAllSelected = isAllSelected,
+            onSearchMode = onSearchMode,
+            onSearchTextChanged = onSearchTextChanged,
+            onSelectionModeCancelled = onSelectionModeCancelled,
+            onSelectAll = onSelectAll,
+            onDeselectAll = onDeselectAll,
+            localizationManager = localizationManager,
+            onSearchCancelled = onSearchCancelled,
+            homeScreenUiState = homeScreenUiState
+        )
+    }, bottomBar = {
+        AnimatedVisibility(visible = homeScreenUiState is HomeScreenUiState.Content.NormalMode && homeScreenUiState.isSelectionMode,
+            enter = slideInVertically(initialOffsetY = { it }) + fadeIn(),
+            exit = slideOutVertically(targetOffsetY = { it }) + fadeOut()) {
+            HomeBottomBar(modifier = Modifier,
+                allSelectedIsPinned = homeScreenUiState is HomeScreenUiState.Content.NormalMode && homeScreenUiState.list.filter { it.isSelected }.all { it.isPinned },
+                isAllDeselected = homeScreenUiState is HomeScreenUiState.Content.NormalMode && homeScreenUiState.list.all { !it.isSelected },
+                onPinItems = onPinItems,
+                onUnpinItems = onUnpinItems,
+                onDelete = {
+                    onDeleteNotesClicked()
+                })
+        }
+    }, floatingActionButton = {
+        AnimatedVisibility(
+            visible = (homeScreenUiState is HomeScreenUiState.Content.NormalMode && homeScreenUiState.isSelectionMode.not()) || homeScreenUiState is HomeScreenUiState.Empty,
+            enter = fadeIn(),
+            exit = fadeOut()
+        ) {
+            NotesFloatingActionButton {
+                onAddNoteClick()
             }
         }
-    ) {
+    }) {
         HomeContent(
             modifier = Modifier
                 .padding(it)
@@ -234,15 +223,13 @@ internal fun HomeContent(
                     onItemLongClick = onItemLongClick
                 )
 
-                is HomeScreenUiState.Content.SearchMode -> List(
-                    modifier = modifier
-                        .padding()
-                        .testTag(HomeTag.list),
+                is HomeScreenUiState.Content.SearchMode -> List(modifier = modifier
+                    .padding()
+                    .testTag(HomeTag.list),
                     isSelectionMode = false,
                     listItems = homeScreenUiState.list,
                     onItemClick = onItemClick,
-                    onItemLongClick = { }
-                )
+                    onItemLongClick = { })
 
             }
         }
@@ -318,8 +305,7 @@ fun HomeScreenPreview() {
                 18037723902,
                 false,
                 false
-            ),
-            NoteItem(
+            ), NoteItem(
                 "902930",
                 "How to make pancakes",
                 "Whisk the eggs to make pancakes for the house to eat fro the bowl",
@@ -327,8 +313,7 @@ fun HomeScreenPreview() {
                 false,
                 false
             )
-        ),
-        true
+        ), true
     )
     val search = HomeScreenUiState.Content.SearchMode(
         listOf(
@@ -339,8 +324,7 @@ fun HomeScreenPreview() {
                 18037723902,
                 false,
                 false
-            ),
-            NoteItem(
+            ), NoteItem(
                 "902930",
                 "How to make pancakes",
                 "Whisk the eggs to make pancakes for the house to eat fro the bowl",
@@ -351,8 +335,7 @@ fun HomeScreenPreview() {
         )
     )
     val empty = HomeScreenUiState.Empty("Create your first note!")
-    HomeScreen(
-        searchValue = searchValue,
+    HomeScreen(searchValue = searchValue,
         isAllSelected = isAllSelected,
         localizationManager = LocalizationManager(context = LocalContext.current),
         onSearchTextChanged = {},
@@ -365,15 +348,15 @@ fun HomeScreenPreview() {
             isAllSelected = false
         },
         onSearchMode = {},
-        onSelectItem = {},
         onSelectionModeCancelled = {},
         onItemClick = {},
+        onUnpinItems = {},
+        onPinItems = {},
         onItemLongClick = {},
-        onDeleteNoteClicked = {},
+        onDeleteNotesClicked = {},
         homeScreenUiState = search,
         homeScreenUiEvent = HomeScreenUiEvent.Idle,
         snackbarHostState = remember {
             SnackbarHostState()
-        }
-    )
+        })
 }

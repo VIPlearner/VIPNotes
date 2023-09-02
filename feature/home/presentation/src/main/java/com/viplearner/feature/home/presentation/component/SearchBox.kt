@@ -17,8 +17,10 @@ import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Clear
+import androidx.compose.material.icons.filled.Search
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
+import androidx.compose.material3.IconButtonDefaults
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextFieldDefaults
 import androidx.compose.material3.Text
@@ -39,7 +41,9 @@ import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.viplearner.common.presentation.component.VIPTextField
+import com.viplearner.common.presentation.util.rememberLocalizationManager
 import com.viplearner.feature.home.presentation.HomeTag
+import com.viplearner.feature.home.presentation.R
 
 @Composable
 fun SearchBox(
@@ -54,6 +58,7 @@ fun SearchBox(
     val searchFocus = remember {
         FocusRequester()
     }
+    val localizationManager = rememberLocalizationManager()
     Row(
         modifier = modifier
             .padding(vertical = 10.dp, horizontal = 20.dp),
@@ -69,7 +74,7 @@ fun SearchBox(
                     interactionSource = MutableInteractionSource(),
                     indication = null,
                     onClick = {
-                        if(searchClickEnabled){
+                        if (searchClickEnabled) {
                             searchFocus.captureFocus()
                             onSearchMode()
                         }
@@ -83,9 +88,46 @@ fun SearchBox(
             },
             placeholder = {
                 Text(
-                    text = "Search...",
+                    text = localizationManager.getString(R.string.search),
                     style = MaterialTheme.typography.bodyMedium
                 )
+            },
+            leadingIcon = {
+                Icon(
+                    modifier = Modifier
+                        .size(20.dp)
+                        .align(Alignment.CenterVertically),
+                    imageVector = Icons.Default.Search,
+                    contentDescription = "Search"
+                )
+            },
+            trailingIcon = {
+                AnimatedVisibility(
+                    visible = searchMode,
+                    enter = fadeIn(),
+                    exit = fadeOut()
+                ) {
+                    IconButton(
+                        modifier = Modifier
+                            .size(22.dp)
+                            .align(Alignment.CenterVertically),
+                        onClick = {
+                            onTextChanged("")
+                        },
+                        colors = IconButtonDefaults.filledIconButtonColors(
+                            containerColor = MaterialTheme.colorScheme.outline.copy(alpha = 0.3f),
+                            contentColor = MaterialTheme.colorScheme.onBackground
+                        )
+                    ) {
+                        Icon(
+                            modifier = Modifier
+                                .padding(4.dp)
+                                .align(Alignment.CenterVertically),
+                            imageVector = Icons.Default.Clear,
+                            contentDescription = "Cancel Search"
+                        )
+                    }
+                }
             },
             enabled = searchMode,
             singleLine = true,

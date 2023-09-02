@@ -55,6 +55,26 @@ class HomeRepositoryImpl @Inject constructor(
             emit(Result.Error(HomeError.DeleteNoteError))
         }.flowOn(ioDispatcher)
 
+    override suspend fun pinNotes(uuidList: List<String>): Flow<Result<Unit, HomeError>> =
+        flow<Result<Unit, HomeError>> {
+            homeService.pinNotes(uuidList)
+            emit(Result.Success(Unit))
+        }.onStart {
+            emit(Result.Loading())
+        }.catch {
+            emit(Result.Error(HomeError.PinNotesError))
+        }.flowOn(ioDispatcher)
+
+    override suspend fun unpinNotes(uuidList: List<String>): Flow<Result<Unit, HomeError>> =
+        flow<Result<Unit, HomeError>> {
+            homeService.unpinNotes(uuidList)
+            emit(Result.Success(Unit))
+        }.onStart {
+            emit(Result.Loading())
+        }.catch {
+            emit(Result.Error(HomeError.UnpinNotesError))
+        }.flowOn(ioDispatcher)
+
     override suspend fun addNote(noteEntity: NoteEntity): Flow<Result<Unit, HomeError>> {
         TODO("Not yet implemented")
     }

@@ -7,6 +7,8 @@ import com.viplearner.common.domain.Result
 import com.viplearner.feature.home.domain.usecase.DeleteNoteUseCase
 import com.viplearner.feature.home.domain.usecase.GetListBySearchTextUseCase
 import com.viplearner.feature.home.domain.usecase.GetListUseCase
+import com.viplearner.feature.home.domain.usecase.PinNotesUseCase
+import com.viplearner.feature.home.domain.usecase.UnpinNotesUseCase
 import com.viplearner.feature.home.presentation.mapper.ErrorMessageMapper
 import com.viplearner.feature.home.presentation.mapper.toNoteItem
 import com.viplearner.feature.home.presentation.model.NoteItem
@@ -22,8 +24,10 @@ import javax.inject.Inject
 @HiltViewModel
 class HomeViewModel @Inject constructor(
     private val getListUseCase: GetListUseCase,
-    private val deleteNoteUseCase: DeleteNoteUseCase,
+    private val deleteNotesUseCase: DeleteNoteUseCase,
     private val getListBySearchTextUseCase: GetListBySearchTextUseCase,
+    private val pinNotesUseCase: PinNotesUseCase,
+    private val unpinNotesUseCase: UnpinNotesUseCase,
     private val errorMessageMapper: ErrorMessageMapper,
     private val localizationManager: LocalizationManager
 ) : ViewModel() {
@@ -46,7 +50,7 @@ class HomeViewModel @Inject constructor(
                                 if(response.isNotEmpty()){
                                     _homeScreenUiState.value =
                                         HomeScreenUiState.Content.NormalMode(
-                                            list = response.map { it.toNoteItem() },
+                                            list = response.map { it.toNoteItem() }.sortedBy { !it.isPinned },
                                             isSelectionMode = false
                                         )
                                 }
@@ -81,7 +85,7 @@ class HomeViewModel @Inject constructor(
                         result.data?.let { response ->
                             if(response.isNotEmpty()){
                                 _homeScreenUiState.value =
-                                    HomeScreenUiState.Content.SearchMode(response.map { it.toNoteItem() })
+                                    HomeScreenUiState.Content.SearchMode(response.map { it.toNoteItem() }.sortedBy { !it.isPinned })
                             }
                             else{
                                 _homeScreenUiState.value =
@@ -106,9 +110,9 @@ class HomeViewModel @Inject constructor(
         }
     }
 
-    fun deleteNote(noteItemList: List<NoteItem>) {
+    fun deleteNotes(noteItemList: List<NoteItem>) {
         viewModelScope.launch {
-            deleteNoteUseCase.invoke(
+            deleteNotesUseCase.invoke(
                 noteItemList.map{it.uuid}
             ).collectLatest{result ->
                 when (result) {
@@ -124,7 +128,61 @@ class HomeViewModel @Inject constructor(
 
                     is Result.Error -> {
                         _homeScreenUiEvent.value = HomeScreenUiEvent.Error(
-                            localizationManager.getString(R.string.note_deleted_error)
+                            errorMessageMapper.getErrorMessage(result.error)
+                        )
+                    }
+                    else -> {}
+                }
+            }
+        }
+    }
+
+    fun pinNotes(noteItemList: List<NoteItem>) {
+        viewModelScope.launch {
+            pinNotesUseCase.invoke(
+                noteItemList.map{it.uuid}
+            ).collectLatest{result ->
+                when (result) {
+                    is Result.Success -> {
+                        _homeScreenUiEvent.value = HomeScreenUiEvent.DeleteNoteSuccess(
+                            localizationManager.getString(R.string.note_pinned)
+                        )
+                    }
+
+                    is Result.Loading -> {
+                        _homeScreenUiEvent.value = HomeScreenUiEvent.Loading
+                    }
+
+                    is Result.Error -> {
+                        _homeScreenUiEvent.value = HomeScreenUiEvent.Error(
+                            errorMessageMapper.getErrorMessage(result.error)
+                        )
+                    }
+                    else -> {}
+                }
+            }
+        }
+    }
+
+    fun unpinNotes(noteItemList: List<NoteItem>) {
+        viewModelScope.launch {
+            unpinNotesUseCase.invoke(
+                noteItemList.map{it.uuid}
+            ).collectLatest{result ->
+                when (result) {
+                    is Result.Success -> {
+                        _homeScreenUiEvent.value = HomeScreenUiEvent.DeleteNoteSuccess(
+                            localizationManager.getString(R.string.note_unpinned)
+                        )
+                    }
+
+                    is Result.Loading -> {
+                        _homeScreenUiEvent.value = HomeScreenUiEvent.Loading
+                    }
+
+                    is Result.Error -> {
+                        _homeScreenUiEvent.value = HomeScreenUiEvent.Error(
+                            errorMessageMapper.getErrorMessage(result.error)
                         )
                     }
                     else -> {}

@@ -14,6 +14,8 @@ class ErrorMessageMapper(
             is HomeError.GetListBySearchTextError -> localizationManager.getString(R.string.get_list_by_search_error)
             is HomeError.AddNoteError -> localizationManager.getString(R.string.add_note_error)
             is HomeError.DeleteNoteError -> localizationManager.getString(R.string.delete_note_error)
+            is HomeError.PinNotesError -> localizationManager.getString(R.string.pin_note_error)
+            is HomeError.UnpinNotesError -> localizationManager.getString(R.string.unpin_note_error)
             else -> localizationManager.getString(commonResources.string.unknown_error)
         }
 

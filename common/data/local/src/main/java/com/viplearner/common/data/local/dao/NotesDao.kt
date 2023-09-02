@@ -14,8 +14,8 @@ interface NotesDao {
 
     @Query("SELECT * " +
             "FROM Notes " +
-            "WHERE (title LIKE :searchText " +
-            "OR content LIKE :searchText)" +
+            "WHERE (title LIKE '%' || :searchText || '%' " +
+            "OR content LIKE '%' || :searchText || '%')" +
             "OR :searchText = ''" +
             "ORDER BY timeLastEdited DESC")
     fun getNotesBySearchText(searchText: String): Flow<List<Note>>
