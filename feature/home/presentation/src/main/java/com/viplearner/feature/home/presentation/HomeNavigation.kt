@@ -7,11 +7,15 @@ object HomeNavigation {
     const val route = "home"
 }
 
-fun NavGraphBuilder.homeRoute(navigateToNote: (String) -> Unit) {
+fun NavGraphBuilder.homeRoute(
+    navigateToNote: (String) -> Unit,
+    onSignInViaGoogleClick: () -> Unit
+) {
     composable(HomeNavigation.route) {
         HomeRoute(
             onAddNoteClicked = navigateToNote,
-            onNavigateToNote = navigateToNote
+            onNavigateToNote = navigateToNote,
+            onSignInViaGoogleClick = onSignInViaGoogleClick
         )
     }
 }

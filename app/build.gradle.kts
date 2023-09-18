@@ -5,6 +5,8 @@ plugins {
     alias(libs.plugins.kotlin.android)
     alias(libs.plugins.kotlin.kapt)
     alias(libs.plugins.hilt)
+    alias(libs.plugins.google.services)
+    alias(libs.plugins.kotlin.serialization)
 }
 
 
@@ -76,6 +78,9 @@ dependencies {
     implementation(libs.lifecycle.runtime.ktx)
     implementation(libs.hilt)
     implementation(libs.navigation.compose)
+    implementation(libs.firebase.auth)
+    implementation(libs.play.services.auth)
+    implementation(libs.kotlin.serialization)
     implementation(libs.navigation.common.ktx)
     implementation(libs.jakewharton.timber)
     implementation(libs.room.runtime)

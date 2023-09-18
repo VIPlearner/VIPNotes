@@ -48,6 +48,7 @@ dependencies {
     implementation(libs.localizationManager)
     kapt(libs.hilt.compiler)
     runtimeOnly(libs.room.runtime)
+    implementation(libs.androidx.dataStore.preferences)
     ksp(libs.room.compiler)
     implementation(libs.room.ktx)
     androidTestImplementation(libs.room.testing)

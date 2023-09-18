@@ -32,6 +32,7 @@ import com.viplearner.feature.home.presentation.state.HomeScreenUiState
 @Composable
 fun HomeTopBar(
     modifier: Modifier,
+    profileImageUrl: String?,
     isAllSelected: Boolean,
     searchValue: String,
     localizationManager: LocalizationManager,
@@ -41,6 +42,7 @@ fun HomeTopBar(
     onSelectAll: () -> Unit,
     onDeselectAll: () -> Unit,
     onSearchCancelled: () -> Unit,
+    onClickProfile: () -> Unit,
     homeScreenUiState: HomeScreenUiState
 ) {
     val searchMode = homeScreenUiState is HomeScreenUiState.Content.SearchMode || homeScreenUiState is HomeScreenUiState.NoNoteFound
@@ -87,12 +89,14 @@ fun HomeTopBar(
         SearchBox(
             modifier = Modifier
                 .align(Alignment.CenterHorizontally),
+            profileImageUrl = profileImageUrl,
             searchMode = searchMode,
             onSearchMode = onSearchMode,
             searchClickEnabled = searchClickEnabled,
             searchValue = searchValue,
             onTextChanged = onSearchTextChanged,
-            onSearchCancelled = onSearchCancelled
+            onSearchCancelled = onSearchCancelled,
+            onClickProfile = onClickProfile
         )
     }
 }
@@ -141,10 +145,12 @@ fun HomeTopBarPreview() {
         },
         onSelectAll = { isAllSelected = true },
         onDeselectAll = { isAllSelected = false },
+        onClickProfile = {},
         onSearchCancelled = {
             homeScreenUiState = HomeScreenUiState.Content.NormalMode(list, false)
         },
         localizationManager = localizationManager,
-        homeScreenUiState = homeScreenUiState
+        homeScreenUiState = homeScreenUiState,
+        profileImageUrl = "https://www.gravatar.com/avatar/2433495de6d2b99746f8e25344209fa7?s=64&d=identicon&r=PG"
     )
 }

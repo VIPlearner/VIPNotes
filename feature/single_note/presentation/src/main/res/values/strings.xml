@@ -3,4 +3,5 @@
     <string name="get_note_error">Unable to retrieve note</string>
     <string name="update_note_error">Unable to update note</string>
     <string name="create_note_error">Unable to create note</string>
+    <string name="title">Title</string>
 </resources>

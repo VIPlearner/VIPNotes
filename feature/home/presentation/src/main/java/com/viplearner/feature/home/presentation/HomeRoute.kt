@@ -14,9 +14,11 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.wrapContentSize
+import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.SnackbarHost
 import androidx.compose.material3.SnackbarHostState
+import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -42,18 +44,23 @@ import com.viplearner.common.presentation.util.rememberLocalizationManager
 import com.viplearner.feature.home.presentation.component.HomeBottomBar
 import com.viplearner.feature.home.presentation.component.HomeTopBar
 import com.viplearner.feature.home.presentation.component.NoNoteFoundView
+import com.viplearner.feature.home.presentation.component.sign_in.SignInModal
 import com.viplearner.feature.home.presentation.model.NoteItem
 import com.viplearner.feature.home.presentation.state.HomeScreenUiEvent
 import com.viplearner.feature.home.presentation.state.HomeScreenUiState
+import com.viplearner.feature.home.presentation.state.SignInState
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun HomeRoute(
     onNavigateToNote: (String) -> Unit,
     onAddNoteClicked: (String) -> Unit,
+    onSignInViaGoogleClick: () -> Unit,
     viewModel: HomeViewModel = hiltViewModel(),
 ) {
     val homeScreenUiState by viewModel.homeScreenUiState.collectAsStateWithLifecycle()
     val homeScreenUiEvent by viewModel.homeScreenUiEvent.collectAsStateWithLifecycle()
+    val signInState by viewModel.signInState.collectAsStateWithLifecycle()
     val localizationManager = rememberLocalizationManager()
     val snackbarHostState = remember {
         SnackbarHostState()
@@ -62,9 +69,32 @@ fun HomeRoute(
         homeScreenUiState is HomeScreenUiState.Content.NormalMode && (homeScreenUiState as HomeScreenUiState.Content.NormalMode).isSelectionMode
 
     var searchValue by rememberSaveable { mutableStateOf("") }
+    var openSignInBottomSheet by rememberSaveable { mutableStateOf(true) }
+    val signInBottomSheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true)
 
+    val isSyncingData by remember {
+        mutableStateOf(false)
+    }
+
+
+    if(openSignInBottomSheet){
+        SignInModal(
+            isSyncingData = isSyncingData,
+            signInState = signInState,
+            sheetState = signInBottomSheetState,
+            onDismissRequest = { openSignInBottomSheet = false },
+            onSignInWithEmail = viewModel::signInViaEmail,
+            onClickSignUp = {},
+            onSignInWithFacebook = {},
+            onSignInWithGoogle = onSignInViaGoogleClick,
+            onSyncData = {},
+            onSignOut = {},
+            onSignUpWithEmail = viewModel::signUpWithEmail
+        )
+    }
     HomeScreen(
         searchValue = searchValue,
+        profileImageUrl = if(signInState is SignInState.SignInSuccess && (signInState as SignInState.SignInSuccess).userData.profilePictureUrl != null) (signInState as SignInState.SignInSuccess).userData.profilePictureUrl else null,
         localizationManager = localizationManager,
         isAllSelected = homeScreenUiState.let {
             when (it) {
@@ -122,6 +152,9 @@ fun HomeRoute(
         onDeselectAll = {
             viewModel.deselectAll()
         },
+        onClickProfile = {
+            openSignInBottomSheet = true
+        },
         homeScreenUiState = homeScreenUiState,
         homeScreenUiEvent = homeScreenUiEvent,
         snackbarHostState = snackbarHostState
@@ -131,6 +164,7 @@ fun HomeRoute(
 @Composable
 internal fun HomeScreen(
     searchValue: String,
+    profileImageUrl: String?,
     isAllSelected: Boolean,
     localizationManager: LocalizationManager,
     onAddNoteClick: () -> Unit,
@@ -145,48 +179,56 @@ internal fun HomeScreen(
     onSelectAll: () -> Unit,
     onDeselectAll: () -> Unit,
     onSearchCancelled: () -> Unit,
+    onClickProfile: () -> Unit,
     homeScreenUiState: HomeScreenUiState,
     homeScreenUiEvent: HomeScreenUiEvent,
     snackbarHostState: SnackbarHostState
 ) {
-    Template(modifier = Modifier.background(MaterialTheme.colorScheme.background), topBar = {
-        HomeTopBar(
-            modifier = Modifier.fillMaxWidth(),
-            searchValue = searchValue,
-            isAllSelected = isAllSelected,
-            onSearchMode = onSearchMode,
-            onSearchTextChanged = onSearchTextChanged,
-            onSelectionModeCancelled = onSelectionModeCancelled,
-            onSelectAll = onSelectAll,
-            onDeselectAll = onDeselectAll,
-            localizationManager = localizationManager,
-            onSearchCancelled = onSearchCancelled,
-            homeScreenUiState = homeScreenUiState
-        )
-    }, bottomBar = {
-        AnimatedVisibility(visible = homeScreenUiState is HomeScreenUiState.Content.NormalMode && homeScreenUiState.isSelectionMode,
-            enter = slideInVertically(initialOffsetY = { it }) + fadeIn(),
-            exit = slideOutVertically(targetOffsetY = { it }) + fadeOut()) {
-            HomeBottomBar(modifier = Modifier,
-                allSelectedIsPinned = homeScreenUiState is HomeScreenUiState.Content.NormalMode && homeScreenUiState.list.filter { it.isSelected }.all { it.isPinned },
-                isAllDeselected = homeScreenUiState is HomeScreenUiState.Content.NormalMode && homeScreenUiState.list.all { !it.isSelected },
-                onPinItems = onPinItems,
-                onUnpinItems = onUnpinItems,
-                onDelete = {
-                    onDeleteNotesClicked()
-                })
-        }
-    }, floatingActionButton = {
-        AnimatedVisibility(
-            visible = (homeScreenUiState is HomeScreenUiState.Content.NormalMode && homeScreenUiState.isSelectionMode.not()) || homeScreenUiState is HomeScreenUiState.Empty,
-            enter = fadeIn(),
-            exit = fadeOut()
-        ) {
-            NotesFloatingActionButton {
-                onAddNoteClick()
+    Template(
+        modifier = Modifier.background(MaterialTheme.colorScheme.background),
+        topBar = {
+            HomeTopBar(
+                modifier = Modifier.fillMaxWidth(),
+                profileImageUrl = profileImageUrl,
+                searchValue = searchValue,
+                isAllSelected = isAllSelected,
+                onSearchMode = onSearchMode,
+                onSearchTextChanged = onSearchTextChanged,
+                onSelectionModeCancelled = onSelectionModeCancelled,
+                onSelectAll = onSelectAll,
+                onDeselectAll = onDeselectAll,
+                localizationManager = localizationManager,
+                onSearchCancelled = onSearchCancelled,
+                onClickProfile = onClickProfile,
+                homeScreenUiState = homeScreenUiState
+            )
+        },
+        bottomBar = {
+            AnimatedVisibility(visible = homeScreenUiState is HomeScreenUiState.Content.NormalMode && homeScreenUiState.isSelectionMode,
+                enter = slideInVertically(initialOffsetY = { it }) + fadeIn(),
+                exit = slideOutVertically(targetOffsetY = { it }) + fadeOut()) {
+                HomeBottomBar(modifier = Modifier,
+                    allSelectedIsPinned = homeScreenUiState is HomeScreenUiState.Content.NormalMode && homeScreenUiState.list.filter { it.isSelected }.all { it.isPinned },
+                    isAllDeselected = homeScreenUiState is HomeScreenUiState.Content.NormalMode && homeScreenUiState.list.all { !it.isSelected },
+                    onPinItems = onPinItems,
+                    onUnpinItems = onUnpinItems,
+                    onDelete = {
+                        onDeleteNotesClicked()
+                    })
+            }
+        },
+        floatingActionButton = {
+            AnimatedVisibility(
+                visible = (homeScreenUiState is HomeScreenUiState.Content.NormalMode && homeScreenUiState.isSelectionMode.not()) || homeScreenUiState is HomeScreenUiState.Empty,
+                enter = fadeIn(),
+                exit = fadeOut()
+            ) {
+                NotesFloatingActionButton {
+                    onAddNoteClick()
+                }
             }
         }
-    }) {
+    ) {
         HomeContent(
             modifier = Modifier
                 .padding(it)
@@ -336,6 +378,7 @@ fun HomeScreenPreview() {
     )
     val empty = HomeScreenUiState.Empty("Create your first note!")
     HomeScreen(searchValue = searchValue,
+        profileImageUrl = "https://www.gravatar.com/avatar/2433495de6d2b99746f8e25344209fa7?s=64&d=identicon&r=PG",
         isAllSelected = isAllSelected,
         localizationManager = LocalizationManager(context = LocalContext.current),
         onSearchTextChanged = {},
@@ -354,6 +397,7 @@ fun HomeScreenPreview() {
         onPinItems = {},
         onItemLongClick = {},
         onDeleteNotesClicked = {},
+        onClickProfile = {},
         homeScreenUiState = search,
         homeScreenUiEvent = HomeScreenUiEvent.Idle,
         snackbarHostState = remember {

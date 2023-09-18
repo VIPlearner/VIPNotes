@@ -14,7 +14,8 @@ import com.viplearner.feature.single_note.presentation.viewmodel.SingleNoteViewM
 @Composable
 fun Navigation(
     navController: NavHostController = rememberNavController(),
-    singleNoteViewModelFactory: SingleNoteViewModel.Factory
+    singleNoteViewModelFactory: SingleNoteViewModel.Factory,
+    onSignInViaGoogleClick: () -> Unit
 ) {
     NavHost(
         navController = navController,
@@ -24,7 +25,8 @@ fun Navigation(
             navigateToNote = { uuid ->
                 val detailEntityArg = uuid
                 navController.navigate("${SingleNoteNavigation.route}/$detailEntityArg")
-            }
+            },
+            onSignInViaGoogleClick = onSignInViaGoogleClick
         )
         singleNoteRoute(
             factory = singleNoteViewModelFactory

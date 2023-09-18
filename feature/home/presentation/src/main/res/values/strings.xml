@@ -20,4 +20,9 @@
     <string name="unpin_note_error">Unable to unpin Notes</string>
     <string name="note_unpinned">Notes unpinned Successfully</string>
     <string name="unpin">Unpin</string>
+    <string name="web_client_id">229706785154-n082ooj29guaj0k4qsqgussibti94atp.apps.googleusercontent.com</string>
+    <string name="load_user_data_error">Unable to confirm Login</string>
+    <string name="sync_notes">Sync Notes Online</string>
+    <string name="sign_out">Sign out</string>
+    <string name="profile_picture">Profile Picture</string>
 </resources>

@@ -5,7 +5,11 @@ minSdk = "24"
 targetSdk = "34"
 compileSdk = "34"
 kotlin-compiler-extension = "1.5.1"
-agp = "8.2.0-alpha16"
+firebase = "22.1.2"
+google-services = "4.4.0"
+play-services-auth = "20.4.1"
+androidxDataStore = "1.0.0"
+agp = "8.3.0-alpha03"
 kotlin = "1.9.0"
 core-ktx = "1.10.1"
 compose = "1.5.0"
@@ -25,6 +29,7 @@ room = "2.5.2"
 navigation = "2.7.0"
 lifecycle = "2.6.1"
 coil = "2.4.0"
+compose-rich-editor = "1.0.0-beta02"
 coroutines = "1.7.3"
 # higher versions not working
 coroutines-test = "1.6.4"
@@ -50,6 +55,9 @@ hilt-compiler = { group = "com.google.dagger", name = "hilt-compiler", version.r
 hilt-navigation = { group = "androidx.hilt", name = "hilt-navigation-compose", version.ref = "hilt-navigation" }
 activity-compose = { group = "androidx.activity", name = "activity-compose", version.ref = "activity-compose" }
 compose-bom = { group = "androidx.compose", name = "compose-bom", version.ref = "compose-bom" }
+firebase-auth = { group = "com.google.firebase", name = "firebase-auth-ktx", version.ref = "firebase" }
+play-services-auth = { group = "com.google.android.gms", name = "play-services-auth", version.ref = "play-services-auth" }
+androidx-dataStore-preferences = { group = "androidx.datastore", name = "datastore-preferences", version.ref = "androidxDataStore" }
 ui = { group = "androidx.compose.ui", name = "ui", version.ref = "compose" }
 ui-graphics = { group = "androidx.compose.ui", name = "ui-graphics", version.ref = "compose" }
 ui-tooling = { group = "androidx.compose.ui", name = "ui-tooling", version.ref = "compose" }
@@ -63,6 +71,7 @@ coil = { group = "io.coil-kt", name = "coil-compose", version.ref = "coil" }
 navigation-compose = { group = "androidx.navigation", name = "navigation-compose", version.ref = "navigation" }
 navigation-common-ktx = { group = "androidx.navigation", name = "navigation-common-ktx", version.ref = "navigation" }
 kotlin-serialization = { group = "org.jetbrains.kotlinx", name = "kotlinx-serialization-json", version.ref = "kotlin-serialization" }
+rich-editor = { group = "com.mohamedrejeb.richeditor", name = "richeditor-compose", version.ref = "compose-rich-editor" }
 room-runtime = { group = "androidx.room", name = "room-runtime", version.ref = "room" }
 jakewharton-timber = { module = "com.jakewharton.timber:timber", version.ref = "jakewhartonTimber" }
 room-ktx = { group = "androidx.room", name = "room-ktx", version.ref = "room" }
@@ -86,6 +95,7 @@ junit4 = { group = "junit", name = "junit", version.ref = "junit4" }
 ktor = ["ktor-core", "ktor-android", "ktor-contentNegotiation", "ktor-kotlinxSerialization", "ktor-logging"]
 
 [plugins]
+google-services = { id = "com.google.gms.google-services", version.ref = "google-services" }
 androidApplication = { id = "com.android.application", version.ref = "agp" }
 androidLibrary = { id = "com.android.library", version.ref = "agp" }
 kotlin-android = { id = "org.jetbrains.kotlin.android", version.ref = "kotlin" }

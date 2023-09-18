@@ -1,9 +1,11 @@
 package com.viplearner.feature.home.data.repository
 
+import android.content.Context
 import com.viplearner.common.data.local.mapper.toNoteEntity
 import com.viplearner.common.data.remote.di.IoDispatcher
 import com.viplearner.common.domain.Result
 import com.viplearner.common.domain.entity.NoteEntity
+import com.viplearner.common.domain.entity.UserData
 import com.viplearner.feature.home.data.service.HomeService
 import com.viplearner.feature.home.domain.entity.HomeError
 import com.viplearner.feature.home.domain.repository.HomeRepository
@@ -15,6 +17,7 @@ import kotlinx.coroutines.flow.flatMapConcat
 import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.flow.flowOn
 import kotlinx.coroutines.flow.onStart
+import kotlinx.serialization.json.Json
 import javax.inject.Inject
 
 class HomeRepositoryImpl @Inject constructor(
@@ -42,6 +45,19 @@ class HomeRepositoryImpl @Inject constructor(
                 emit(Result.Loading())
             }.catch {
                 emit(Result.Error(HomeError.GetListError))
+            }
+        }
+
+    @OptIn(ExperimentalCoroutinesApi::class)
+    override suspend fun loadUserData(): Flow<Result<UserData, HomeError>> =
+        homeService.loadUserData().flatMapConcat { userDataStr ->
+            flow<Result<UserData, HomeError>> {
+                val userData = Json.decodeFromString<UserData>(userDataStr)
+                emit(Result.Success(userData))
+            }.onStart {
+                emit(Result.Loading())
+            }.catch {
+                emit(Result.Error(HomeError.LoadUserDataError))
             }
         }
 
@@ -78,6 +94,17 @@ class HomeRepositoryImpl @Inject constructor(
     override suspend fun addNote(noteEntity: NoteEntity): Flow<Result<Unit, HomeError>> {
         TODO("Not yet implemented")
     }
+
+    override suspend fun signInViaGoogle(): Flow<Result<Unit, HomeError>> =
+        flow<Result<Unit, HomeError>> {
+            homeService.signInViaGoogle()
+            emit(Result.Success(Unit))
+        }.onStart {
+            emit(Result.Loading())
+        }.catch {
+            emit(Result.Error(HomeError.UnpinNotesError))
+        }.flowOn(ioDispatcher)
+
 
 //    override fun addNote(noteEntity: NoteEntity): Flow<Result<Unit, HomeError>> =
 //        flow<Result<Unit, HomeError>> {

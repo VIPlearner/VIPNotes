@@ -38,10 +38,14 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.text.SpanStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import com.mohamedrejeb.richeditor.model.rememberRichTextState
+import com.mohamedrejeb.richeditor.ui.BasicRichText
+import com.mohamedrejeb.richeditor.ui.material3.RichText
 import com.viplearner.common.presentation.util.extension.epochTo12HrFormat
 import com.viplearner.feature.home.presentation.model.NoteItem
 
@@ -84,10 +88,13 @@ fun NoteItem(
                     overflow = TextOverflow.Ellipsis,
                     maxLines = 1
                 )
+                val richTextState = rememberRichTextState()
+                richTextState.setMarkdown(noteItem.content)
                 Text(
                     modifier = Modifier,
-                    text = noteItem.content,
-                    style = MaterialTheme.typography.bodySmall,
+                    text = richTextState.annotatedString.toString(),
+                    style = MaterialTheme.typography.labelMedium,
+                    fontSize = MaterialTheme.typography.labelMedium.fontSize,
                     overflow = TextOverflow.Ellipsis,
                     fontWeight = FontWeight.Light,
                     color = MaterialTheme.colorScheme.outline,
@@ -138,6 +145,8 @@ fun NoteItem(
                             color = MaterialTheme.colorScheme.primary
                         ) {
                             Icon(
+                                modifier = Modifier
+                                    .padding(4.dp),
                                 imageVector = Icons.Default.Check,
                                 contentDescription = "Selected Note ${noteItem.title}"
                             )
@@ -153,14 +162,14 @@ fun NoteItem(
 @Composable
 fun NoteItemPreview(){
     var isSelectionMode by remember {
-        mutableStateOf(false)
+        mutableStateOf(true)
     }
     var noteItem by remember {
         mutableStateOf(
             NoteItem(
                 "902930",
                 "How to make pancakes Whisk the eggs to make pancakes for the house to eat fro the bowl Whisk the eggs to make pancakes for the house to eat fro the bowl Whisk the eggs to make pancakes for the house to eat fro the bowl",
-                "Whisk the eggs to make pancakes for the house to eat fro the bowl How to make pancakes Whisk the eggs to make pancakes for the house to eat fro the bowl Whisk the eggs to make pancakes for the house to eat fro the bowl Whisk the eggs to make pancakes for the house to eat fro the bowl",
+                "Chair Nail cutter Something for smellas jdidjdd **hsidj** ***hsjsj*** ***usieiej*** • ***gbo adura mi ooo*** • ***2020 tun tu sun mo*** heiebsh why are we here • seje ",
                 15879023772,
                 false,
                 false

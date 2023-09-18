@@ -7,16 +7,20 @@ import com.viplearner.common.domain.Result
 import com.viplearner.feature.home.domain.usecase.DeleteNoteUseCase
 import com.viplearner.feature.home.domain.usecase.GetListBySearchTextUseCase
 import com.viplearner.feature.home.domain.usecase.GetListUseCase
+import com.viplearner.feature.home.domain.usecase.LoadUserDataUseCase
 import com.viplearner.feature.home.domain.usecase.PinNotesUseCase
+import com.viplearner.feature.home.domain.usecase.SignInViaGoogleUseCase
 import com.viplearner.feature.home.domain.usecase.UnpinNotesUseCase
 import com.viplearner.feature.home.presentation.mapper.ErrorMessageMapper
 import com.viplearner.feature.home.presentation.mapper.toNoteItem
 import com.viplearner.feature.home.presentation.model.NoteItem
 import com.viplearner.feature.home.presentation.state.HomeScreenUiEvent
 import com.viplearner.feature.home.presentation.state.HomeScreenUiState
+import com.viplearner.feature.home.presentation.state.SignInState
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
 import javax.inject.Inject
@@ -28,17 +32,23 @@ class HomeViewModel @Inject constructor(
     private val getListBySearchTextUseCase: GetListBySearchTextUseCase,
     private val pinNotesUseCase: PinNotesUseCase,
     private val unpinNotesUseCase: UnpinNotesUseCase,
+    private val loadUserDataUseCase: LoadUserDataUseCase,
+    private val signInViaGoogleUseCase: SignInViaGoogleUseCase,
     private val errorMessageMapper: ErrorMessageMapper,
     private val localizationManager: LocalizationManager
 ) : ViewModel() {
     private val _homeScreenUiState = MutableStateFlow<HomeScreenUiState>(HomeScreenUiState.Loading)
     val homeScreenUiState: StateFlow<HomeScreenUiState> = _homeScreenUiState
 
+    private val _signInState: MutableStateFlow<SignInState> = MutableStateFlow(SignInState.Init)
+    val signInState = _signInState.asStateFlow()
+
     private val _homeScreenUiEvent = MutableStateFlow<HomeScreenUiEvent>(HomeScreenUiEvent.Idle)
     val homeScreenUiEvent: StateFlow<HomeScreenUiEvent> = _homeScreenUiEvent
 
     init {
         getList()
+        loadUserData()
     }
 
     fun getList() {
@@ -205,6 +215,41 @@ class HomeViewModel @Inject constructor(
                 isSelectionMode = true
             )
         }
+    }
+
+    private fun loadUserData(){
+        viewModelScope.launch {
+            loadUserDataUseCase.invoke().collectLatest { result ->
+                when (result) {
+                    is Result.Success -> {
+                        result.data?.let { response ->
+                            _signInState.value = SignInState.SignInSuccess(response)
+                        }
+                    }
+
+                    is Result.Loading -> {
+                        _signInState.value = SignInState.Loading
+                    }
+
+                    is Result.Error -> {
+                        _signInState.value = SignInState.Init
+                        _homeScreenUiEvent.value = HomeScreenUiEvent.Error(
+                            errorMessageMapper.getErrorMessage(result.error)
+                        )
+                    }
+
+                    else -> {}
+                }
+            }
+        }
+    }
+
+    fun signInViaEmail(email: String, password: String){
+
+    }
+
+    fun signUpWithEmail(email: String, password: String){
+
     }
 
     fun selectAll(){
