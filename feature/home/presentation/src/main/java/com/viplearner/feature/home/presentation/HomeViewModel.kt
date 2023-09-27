@@ -9,7 +9,9 @@ import com.viplearner.feature.home.domain.usecase.GetListBySearchTextUseCase
 import com.viplearner.feature.home.domain.usecase.GetListUseCase
 import com.viplearner.feature.home.domain.usecase.LoadUserDataUseCase
 import com.viplearner.feature.home.domain.usecase.PinNotesUseCase
-import com.viplearner.feature.home.domain.usecase.SignInViaGoogleUseCase
+import com.viplearner.feature.home.domain.usecase.SignInViaEmailAndPasswordUseCase
+import com.viplearner.feature.home.domain.usecase.SignOutUseCase
+import com.viplearner.feature.home.domain.usecase.SignUpViaEmailAndPasswordUseCase
 import com.viplearner.feature.home.domain.usecase.UnpinNotesUseCase
 import com.viplearner.feature.home.presentation.mapper.ErrorMessageMapper
 import com.viplearner.feature.home.presentation.mapper.toNoteItem
@@ -23,6 +25,7 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
+import timber.log.Timber
 import javax.inject.Inject
 
 @HiltViewModel
@@ -33,9 +36,11 @@ class HomeViewModel @Inject constructor(
     private val pinNotesUseCase: PinNotesUseCase,
     private val unpinNotesUseCase: UnpinNotesUseCase,
     private val loadUserDataUseCase: LoadUserDataUseCase,
-    private val signInViaGoogleUseCase: SignInViaGoogleUseCase,
+    private val signOutUseCase: SignOutUseCase,
+    private val signInViaEmailAndPasswordUseCase: SignInViaEmailAndPasswordUseCase,
+    private val signUpViaEmailAndPasswordUseCase: SignUpViaEmailAndPasswordUseCase,
     private val errorMessageMapper: ErrorMessageMapper,
-    private val localizationManager: LocalizationManager
+    private val localizationManager: LocalizationManager,
 ) : ViewModel() {
     private val _homeScreenUiState = MutableStateFlow<HomeScreenUiState>(HomeScreenUiState.Loading)
     val homeScreenUiState: StateFlow<HomeScreenUiState> = _homeScreenUiState
@@ -127,7 +132,7 @@ class HomeViewModel @Inject constructor(
             ).collectLatest{result ->
                 when (result) {
                     is Result.Success -> {
-                        _homeScreenUiEvent.value = HomeScreenUiEvent.DeleteNoteSuccess(
+                        _homeScreenUiEvent.value = HomeScreenUiEvent.Success(
                             localizationManager.getString(R.string.note_deleted)
                         )
                     }
@@ -154,7 +159,7 @@ class HomeViewModel @Inject constructor(
             ).collectLatest{result ->
                 when (result) {
                     is Result.Success -> {
-                        _homeScreenUiEvent.value = HomeScreenUiEvent.DeleteNoteSuccess(
+                        _homeScreenUiEvent.value = HomeScreenUiEvent.Success(
                             localizationManager.getString(R.string.note_pinned)
                         )
                     }
@@ -181,7 +186,7 @@ class HomeViewModel @Inject constructor(
             ).collectLatest{result ->
                 when (result) {
                     is Result.Success -> {
-                        _homeScreenUiEvent.value = HomeScreenUiEvent.DeleteNoteSuccess(
+                        _homeScreenUiEvent.value = HomeScreenUiEvent.Success(
                             localizationManager.getString(R.string.note_unpinned)
                         )
                     }
@@ -220,6 +225,7 @@ class HomeViewModel @Inject constructor(
     private fun loadUserData(){
         viewModelScope.launch {
             loadUserDataUseCase.invoke().collectLatest { result ->
+                Timber.d("loadUserData: $result")
                 when (result) {
                     is Result.Success -> {
                         result.data?.let { response ->
@@ -233,6 +239,80 @@ class HomeViewModel @Inject constructor(
 
                     is Result.Error -> {
                         _signInState.value = SignInState.Init
+                    }
+
+                    else -> {}
+                }
+            }
+        }
+    }
+
+    fun signInViaEmail(email: String, password: String) =
+        viewModelScope.launch{
+            signInViaEmailAndPasswordUseCase.invoke(email, password).collect {
+                when (it) {
+                    is Result.Success -> {
+                        _homeScreenUiEvent.value = HomeScreenUiEvent.Success(
+                            localizationManager.getString(R.string.sign_in_success)
+                        )
+                    }
+
+                    is Result.Loading -> {
+                        _homeScreenUiEvent.value = HomeScreenUiEvent.Loading
+                    }
+
+                    is Result.Error -> {
+                        _homeScreenUiEvent.value = HomeScreenUiEvent.Error(
+                            errorMessageMapper.getErrorMessage(it.error)
+                        )
+                    }
+
+                    else -> {}
+                }
+            }
+        }
+
+    fun signUpWithEmail(email: String, password: String){
+        viewModelScope.launch {
+            signUpViaEmailAndPasswordUseCase.invoke(email, password).collect {
+                when (it) {
+                    is Result.Success -> {
+                        _homeScreenUiEvent.value = HomeScreenUiEvent.Success(
+                            localizationManager.getString(R.string.sign_up_success)
+                        )
+                    }
+
+                    is Result.Loading -> {
+                        _homeScreenUiEvent.value = HomeScreenUiEvent.Loading
+                    }
+
+                    is Result.Error -> {
+                        _homeScreenUiEvent.value = HomeScreenUiEvent.Error(
+                            errorMessageMapper.getErrorMessage(it.error)
+                        )
+                    }
+
+                    else -> {}
+                }
+            }
+        }
+    }
+
+    fun signOut(){
+        viewModelScope.launch {
+            signOutUseCase.invoke().collectLatest { result ->
+                when (result) {
+                    is Result.Success -> {
+                        _homeScreenUiEvent.value = HomeScreenUiEvent.Success(
+                            localizationManager.getString(R.string.sign_out_success)
+                        )
+                    }
+
+                    is Result.Loading -> {
+                        _homeScreenUiEvent.value = HomeScreenUiEvent.Loading
+                    }
+
+                    is Result.Error -> {
                         _homeScreenUiEvent.value = HomeScreenUiEvent.Error(
                             errorMessageMapper.getErrorMessage(result.error)
                         )
@@ -244,12 +324,12 @@ class HomeViewModel @Inject constructor(
         }
     }
 
-    fun signInViaEmail(email: String, password: String){
-
+    fun activateSignIn(){
+        _signInState.value = SignInState.Init
     }
 
-    fun signUpWithEmail(email: String, password: String){
-
+    fun activateSignUp(){
+        _signInState.value = SignInState.SignUp
     }
 
     fun selectAll(){

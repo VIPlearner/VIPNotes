@@ -1,6 +1,6 @@
 package com.viplearner.feature.home.data.repository
 
-import android.content.Context
+import com.google.firebase.FirebaseNetworkException
 import com.viplearner.common.data.local.mapper.toNoteEntity
 import com.viplearner.common.data.remote.di.IoDispatcher
 import com.viplearner.common.domain.Result
@@ -95,24 +95,50 @@ class HomeRepositoryImpl @Inject constructor(
         TODO("Not yet implemented")
     }
 
-    override suspend fun signInViaGoogle(): Flow<Result<Unit, HomeError>> =
+    override suspend fun signOut(): Flow<Result<Unit, HomeError>> =
         flow<Result<Unit, HomeError>> {
-            homeService.signInViaGoogle()
+            homeService.signOut()
             emit(Result.Success(Unit))
         }.onStart {
             emit(Result.Loading())
         }.catch {
-            emit(Result.Error(HomeError.UnpinNotesError))
+            emit(
+                when(it){
+                    is FirebaseNetworkException -> Result.Error(HomeError.NetworkError)
+                    else -> Result.Error(HomeError.SignOutError)
+                }
+            )
         }.flowOn(ioDispatcher)
 
+    override suspend fun signIn(email: String, password: String): Flow<Result<Unit, HomeError>> {
+        return flow<Result<Unit, HomeError>> {
+            homeService.signIn(email, password)
+            emit(Result.Success(Unit))
+        }.onStart {
+            emit(Result.Loading())
+        }.catch {
+            emit(
+                when(it){
+                    is FirebaseNetworkException -> Result.Error(HomeError.NetworkError)
+                    else -> Result.Error(HomeError.SignInError)
+                }
+            )
+        }.flowOn(ioDispatcher)
+    }
 
-//    override fun addNote(noteEntity: NoteEntity): Flow<Result<Unit, HomeError>> =
-//        flow<Result<Unit, HomeError>> {
-////            homeService.addNote(noteEntity.toNote())
-//            emit(Result.Success(Unit))
-//        }.onStart {
-//            emit(Result.Loading())
-//        }.catch {
-//            emit(Result.Error(HomeError.AddNoteError))
-//        }.flowOn(ioDispatcher)
+    override suspend fun signUp(email: String, password: String): Flow<Result<Unit, HomeError>> {
+        return flow<Result<Unit, HomeError>> {
+            homeService.signUp(email, password)
+            emit(Result.Success(Unit))
+        }.onStart {
+            emit(Result.Loading())
+        }.catch {
+            emit(
+                when(it){
+                    is FirebaseNetworkException -> Result.Error(HomeError.NetworkError)
+                    else -> Result.Error(HomeError.SignUpError)
+                }
+            )
+        }.flowOn(ioDispatcher)
+    }
 }

@@ -80,6 +80,7 @@ dependencies {
     implementation(libs.navigation.compose)
     implementation(libs.firebase.auth)
     implementation(libs.play.services.auth)
+    implementation(libs.facebook)
     implementation(libs.kotlin.serialization)
     implementation(libs.navigation.common.ktx)
     implementation(libs.jakewharton.timber)

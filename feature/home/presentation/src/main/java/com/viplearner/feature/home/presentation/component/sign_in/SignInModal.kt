@@ -1,10 +1,14 @@
 package com.viplearner.feature.home.presentation.component.sign_in
 
+import android.widget.Toast
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.foundation.Image
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Logout
@@ -24,29 +28,32 @@ import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableDoubleStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
+import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.autofill.AutofillType
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.text.input.PasswordVisualTransformation
+import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.viplearner.common.domain.entity.UserData
 import com.viplearner.common.presentation.component.ProgressDialog
 import com.viplearner.common.presentation.component.SignInButtons
-import com.viplearner.common.presentation.component.SignInTextField
 import com.viplearner.common.presentation.component.SignUpButtons
-import com.viplearner.common.presentation.component.VIPTextField
+import com.viplearner.common.presentation.util.extension.autofill
 import com.viplearner.common.presentation.util.rememberLocalizationManager
 import com.viplearner.feature.home.presentation.R
 import com.viplearner.feature.home.presentation.state.SignInState
 
-@OptIn(ExperimentalMaterial3Api::class)
+@OptIn(ExperimentalMaterial3Api::class, ExperimentalComposeUiApi::class)
 @Composable
 fun SignInModal(
     isSyncingData: Boolean,
@@ -55,6 +62,7 @@ fun SignInModal(
     modifier: Modifier = Modifier,
     onDismissRequest: () -> Unit,
     onSignInWithEmail: (email: String, password: String) -> Unit,
+    onClickSignIn: () -> Unit,
     onClickSignUp: () -> Unit,
     onSignInWithGoogle: () -> Unit,
     onSignInWithFacebook: () -> Unit,
@@ -63,6 +71,7 @@ fun SignInModal(
     onSignUpWithEmail: (email: String, password: String) -> Unit,
     ) {
     val localizationManager = rememberLocalizationManager()
+    val context = LocalContext.current
     ModalBottomSheet(
         modifier = modifier,
         onDismissRequest = onDismissRequest,
@@ -80,6 +89,23 @@ fun SignInModal(
                 var isPasswordVisible by remember {
                     mutableStateOf(false)
                 }
+                val onDone: () -> Unit = {
+                    if(password.length < 8) Toast.makeText(
+                        context,
+                        localizationManager.getString(R.string.passwords_too_short),
+                        Toast.LENGTH_SHORT
+                    ).show()
+                    else {
+                        onDismissRequest()
+                        onSignInWithEmail(email, password)
+                    }
+                }
+                val onEmailValueChange = { it: String ->
+                    email = it
+                }
+                val onPasswordValueChange = { it: String ->
+                    password = it
+                }
                 Column {
                     Image(
                         modifier = Modifier
@@ -88,24 +114,48 @@ fun SignInModal(
                         painter = painterResource(id = R.drawable.empty_note),
                         contentDescription = null
                     )
-                    VIPTextField(
+                    SignInTextField(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .autofill(
+                                autofillTypes = listOf(
+                                    AutofillType.EmailAddress,
+                                    AutofillType.Username
+                                ),
+                                onAutoFilled = onEmailValueChange
+                            )
+                            .padding(horizontal = 20.dp),
                         value = email,
-                        onValueChange = {
+                        placeholder = "Email address",
+                        onValueChanged = {
                             email = it
                         }
                     )
-                    VIPTextField(
+                    Spacer(modifier = Modifier.height(10.dp))
+                    SignInTextField(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .autofill(
+                                autofillTypes = listOf(AutofillType.Password),
+                                onAutoFilled = onPasswordValueChange
+                            )
+                            .padding(horizontal = 20.dp),
                         value = password,
-                        onValueChange = {
-                            password = it
-                        },
+                        thereIsNext = false,
+                        visualTransformation = if(isPasswordVisible) VisualTransformation.None else PasswordVisualTransformation(),
+                        onValueChanged = onPasswordValueChange,
+                        placeholder = "Password",
                         trailingIcon = {
                             Icon(
+                                modifier = Modifier.clickable {
+                                    isPasswordVisible = !isPasswordVisible
+                                },
                                 imageVector = if(!isPasswordVisible) Icons.Outlined.Visibility else Icons.Outlined.VisibilityOff,
                                 contentDescription = null,
                                 tint = LocalContentColor.current
                             )
-                        }
+                        },
+                        onDone = onDone
                     )
 
                     SignInButtons(
@@ -114,9 +164,7 @@ fun SignInModal(
                             .padding(20.dp),
                         onSignInWithGoogle = onSignInWithGoogle,
                         onSignInWithFacebook = onSignInWithFacebook,
-                        onSignInWithEmail = {
-                            onSignInWithEmail(email, password)
-                                            },
+                        onSignInWithEmail = { onDone() },
                         onClickSignUp = onClickSignUp
                     )
                 }
@@ -162,31 +210,100 @@ fun SignInModal(
                 var password by remember {
                     mutableStateOf("")
                 }
+                var confirmPassword by remember {
+                    mutableStateOf("")
+                }
                 var isPasswordVisible by remember {
                     mutableStateOf(false)
                 }
+                var isConfirmPasswordVisible by remember {
+                    mutableStateOf(false)
+                }
+                val onDone: () -> Unit = {
+                    if(password != confirmPassword) Toast.makeText(
+                        context,
+                        localizationManager.getString(R.string.passwords_dont_match),
+                        Toast.LENGTH_SHORT
+                    ).show()
+                    else if(!password.isValidPassword())Toast.makeText(
+                        context,
+                        localizationManager.getString(R.string.passwords_not_strong),
+                        Toast.LENGTH_SHORT
+                    ).show()
+                    else {
+                        onDismissRequest()
+                        onSignUpWithEmail(email, password)
+                    }
+                }
+                val onEmailValueChange = { it: String ->
+                    email = it
+                }
+                val onPasswordValueChange = { it: String ->
+                    password = it
+                }
+                val onConfirmPasswordValueChange = {it: String ->
+                    confirmPassword = it
+                }
                 Column {
                     SignInTextField(
-                        modifier = Modifier.padding(horizontal = 20.dp, vertical = 10.dp),
+                        modifier = Modifier
+                            .autofill(
+                                autofillTypes = listOf(
+                                    AutofillType.EmailAddress,
+                                    AutofillType.NewUsername
+                                ),
+                                onAutoFilled = onEmailValueChange
+                            )
+                            .padding(horizontal = 20.dp, vertical = 10.dp),
                         value = email,
-                        onValueChanged = {
-                            email = it
-                        },
-                        placeholder = "Enter your email"
+                        onValueChanged = onEmailValueChange,
+                        placeholder = "Email address"
                     )
                     SignInTextField(
-                        modifier = Modifier.padding(horizontal = 20.dp, vertical = 10.dp),
+                        modifier = Modifier
+                            .autofill(
+                                autofillTypes = listOf(AutofillType.NewPassword),
+                                onAutoFilled = {
+                                    onPasswordValueChange(it)
+                                    onConfirmPasswordValueChange(it)
+                                }
+                            )
+                            .padding(horizontal = 20.dp, vertical = 10.dp),
                         value = password,
-                        onValueChanged = {
-                            password = it
-                        },
-                        placeholder = "Enter your password",
+                        onValueChanged = onPasswordValueChange,
+                        visualTransformation = if(isPasswordVisible) VisualTransformation.None else PasswordVisualTransformation(),
+                        placeholder = "Password",
                         trailingIcon = {
                             Icon(
+                                modifier = Modifier.clickable {
+                                    isPasswordVisible = !isPasswordVisible
+                                },
                                 imageVector = if(!isPasswordVisible) Icons.Outlined.Visibility else Icons.Outlined.VisibilityOff,
                                 contentDescription = null,
                                 tint = LocalContentColor.current
                             )
+                        }
+                    )
+
+                    SignInTextField(
+                        modifier = Modifier.padding(horizontal = 20.dp, vertical = 10.dp),
+                        value = confirmPassword,
+                        onValueChanged = onConfirmPasswordValueChange,
+                        placeholder = "Confirm Password",
+                        thereIsNext = false,
+                        visualTransformation = if(isConfirmPasswordVisible) VisualTransformation.None else PasswordVisualTransformation(),
+                        trailingIcon = {
+                            Icon(
+                                modifier = Modifier.clickable {
+                                    isConfirmPasswordVisible = !isConfirmPasswordVisible
+                                },
+                                imageVector = if(!isConfirmPasswordVisible) Icons.Outlined.Visibility else Icons.Outlined.VisibilityOff,
+                                contentDescription = null,
+                                tint = LocalContentColor.current
+                            )
+                        },
+                        onDone = {
+                            onDone()
                         }
                     )
 
@@ -196,7 +313,8 @@ fun SignInModal(
                             .padding(20.dp),
                         onSignUpWithGoogle = onSignInWithGoogle,
                         onSignUpWithFacebook = onSignInWithFacebook,
-                        onSignUpWithEmail = { onSignUpWithEmail(email,password) },
+                        onSignUpWithEmail = { onDone() },
+                        onClickSignIn = onClickSignIn
                     )
                 }
             }
@@ -277,7 +395,12 @@ fun SignInModalPreview() {
                 )
             )
         },
-        onClickSignUp = {},
+        onClickSignIn = {
+            signInState = SignInState.Init
+        },
+        onClickSignUp = {
+            signInState = SignInState.SignUp
+        },
         onSignInWithGoogle = {
             signInState = SignInState.Loading
         },

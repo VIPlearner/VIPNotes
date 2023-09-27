@@ -7,14 +7,15 @@
  *
  */
 
-package com.viplearner.common.data.local.datastore
+package com.viplearner.common.domain.datastore
 
 import kotlinx.coroutines.flow.Flow
 
 interface NotesDataStoreRepository {
-
     suspend fun clearData()
-
     suspend fun saveUserData(state: String)
     fun getUserData(): Flow<String>
+    suspend fun clearUserData()
+    suspend fun getPrivateKey(): Flow<String>
+    suspend fun savePrivateKey(privateKey: String)
 }

@@ -100,6 +100,7 @@ fun SignUpButtons(
     onSignUpWithGoogle: () -> Unit,
     onSignUpWithFacebook: () -> Unit,
     onSignUpWithEmail: () -> Unit,
+    onClickSignIn: () -> Unit
 ) {
     Column(modifier = modifier) {
         SignInCard(
@@ -132,6 +133,32 @@ fun SignUpButtons(
                 onSignUpWithGoogle()
             }
         }
+        val annotatedString = buildAnnotatedString {
+            append("Already have an account? ")
+            pushStringAnnotation(
+                tag = "SignIn",// provide tag which will then be provided when you click the text
+                annotation = "SignIn"
+            )
+            withStyle(style = SpanStyle(color = MaterialTheme.colorScheme.primary)){
+                append("Sign in")
+            }
+            pop()
+        }
+        ClickableText(
+            text = annotatedString,
+            style = MaterialTheme.typography.labelMedium,
+            modifier = Modifier.padding(top = 15.dp).align(
+                Alignment.CenterHorizontally),
+            onClick = { offset ->
+                annotatedString.getStringAnnotations(
+                    tag = "SignUp",// tag which you used in the buildAnnotatedString
+                    start = offset,
+                    end = offset
+                ).firstOrNull()?.let { annotation ->
+                    onClickSignIn()
+                }
+            }
+        )
     }
 }
 

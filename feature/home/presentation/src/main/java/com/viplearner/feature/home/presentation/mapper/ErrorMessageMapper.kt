@@ -17,6 +17,11 @@ class ErrorMessageMapper(
             is HomeError.PinNotesError -> localizationManager.getString(R.string.pin_note_error)
             is HomeError.UnpinNotesError -> localizationManager.getString(R.string.unpin_note_error)
             is HomeError.LoadUserDataError -> localizationManager.getString(R.string.load_user_data_error)
+            is HomeError.SignInError -> localizationManager.getString(R.string.sign_in_error)
+            is HomeError.SignUpError -> localizationManager.getString(R.string.sign_up_error)
+            is HomeError.SignOutError -> localizationManager.getString(R.string.sign_out_error)
+            is HomeError.NetworkError -> localizationManager.getString(R.string.network_error)
+
             else -> localizationManager.getString(commonResources.string.unknown_error)
         }
 

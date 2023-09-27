@@ -13,9 +13,9 @@ import android.content.Context
 import androidx.datastore.core.DataStore
 import androidx.datastore.preferences.core.Preferences
 import androidx.datastore.preferences.preferencesDataStore
-import com.viplearner.common.data.local.datastore.NotesDataStorePreferenceKeys
-import com.viplearner.common.data.local.datastore.NotesDataStoreRepository
 import com.viplearner.common.data.local.datastore.NotesDataStoreRepositoryImpl
+import com.viplearner.common.domain.datastore.NotesDataStorePreferenceKeys
+import com.viplearner.common.domain.datastore.NotesDataStoreRepository
 import dagger.Binds
 import dagger.Module
 import dagger.Provides

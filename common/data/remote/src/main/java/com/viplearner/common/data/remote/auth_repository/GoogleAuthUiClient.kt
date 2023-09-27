@@ -1,15 +1,15 @@
-package com.viplearner.feature.home.presentation.component.sign_in
+package com.viplearner.common.data.remote.auth_repository
 
 import android.content.Context
 import android.content.Intent
 import android.content.IntentSender
 import com.google.android.gms.auth.api.identity.BeginSignInRequest
+import com.google.android.gms.auth.api.identity.BeginSignInRequest.GoogleIdTokenRequestOptions
+import com.google.android.gms.auth.api.identity.SignInClient
 import com.google.firebase.auth.GoogleAuthProvider
 import com.google.firebase.auth.ktx.auth
 import com.google.firebase.ktx.Firebase
-import com.google.android.gms.auth.api.identity.SignInClient
-import com.google.android.gms.auth.api.identity.BeginSignInRequest.GoogleIdTokenRequestOptions
-import com.viplearner.feature.home.presentation.R
+import com.viplearner.common.data.remote.R
 import com.viplearner.common.domain.entity.SignInResult
 import com.viplearner.common.domain.entity.UserData
 import kotlinx.coroutines.tasks.await
@@ -17,7 +17,7 @@ import kotlin.coroutines.cancellation.CancellationException
 
 class GoogleAuthUiClient(
     private val context: Context,
-    private val oneTapClient: SignInClient
+    private val oneTapClient: SignInClient,
 ) {
     private val auth = Firebase.auth
 

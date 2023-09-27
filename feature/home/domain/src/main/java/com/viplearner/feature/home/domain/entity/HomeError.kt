@@ -8,5 +8,9 @@ sealed class HomeError {
     data object DeleteNoteError : HomeError()
     data object PinNotesError : HomeError()
     data object UnpinNotesError : HomeError()
+    data object SignOutError : HomeError()
+    data object SignInError : HomeError()
+    data object SignUpError : HomeError()
+    data object NetworkError : HomeError()
     data object UnknownError : HomeError()
 }

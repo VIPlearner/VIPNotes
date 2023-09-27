@@ -1,6 +1,5 @@
 package com.viplearner.navigation
 
-import androidx.compose.animation.EnterTransition
 import androidx.compose.runtime.Composable
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
@@ -15,7 +14,8 @@ import com.viplearner.feature.single_note.presentation.viewmodel.SingleNoteViewM
 fun Navigation(
     navController: NavHostController = rememberNavController(),
     singleNoteViewModelFactory: SingleNoteViewModel.Factory,
-    onSignInViaGoogleClick: () -> Unit
+    onSignInViaGoogleClick: () -> Unit,
+    onSignInViaFacebookClick: () -> Unit,
 ) {
     NavHost(
         navController = navController,
@@ -26,7 +26,8 @@ fun Navigation(
                 val detailEntityArg = uuid
                 navController.navigate("${SingleNoteNavigation.route}/$detailEntityArg")
             },
-            onSignInViaGoogleClick = onSignInViaGoogleClick
+            onSignInViaGoogleClick = onSignInViaGoogleClick,
+            onSignInViaFacebookClick = onSignInViaFacebookClick
         )
         singleNoteRoute(
             factory = singleNoteViewModelFactory

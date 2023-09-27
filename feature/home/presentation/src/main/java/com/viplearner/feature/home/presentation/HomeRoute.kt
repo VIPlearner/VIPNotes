@@ -36,14 +36,14 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.eemmez.localization.LocalizationManager
 import com.viplearner.common.presentation.component.ErrorDialog
 import com.viplearner.common.presentation.component.ProgressDialog
-import com.viplearner.feature.home.presentation.component.EmptyListView
-import com.viplearner.feature.home.presentation.component.List
-import com.viplearner.feature.home.presentation.component.NotesFloatingActionButton
 import com.viplearner.common.presentation.component.Template
 import com.viplearner.common.presentation.util.rememberLocalizationManager
+import com.viplearner.feature.home.presentation.component.EmptyListView
 import com.viplearner.feature.home.presentation.component.HomeBottomBar
 import com.viplearner.feature.home.presentation.component.HomeTopBar
+import com.viplearner.feature.home.presentation.component.List
 import com.viplearner.feature.home.presentation.component.NoNoteFoundView
+import com.viplearner.feature.home.presentation.component.NotesFloatingActionButton
 import com.viplearner.feature.home.presentation.component.sign_in.SignInModal
 import com.viplearner.feature.home.presentation.model.NoteItem
 import com.viplearner.feature.home.presentation.state.HomeScreenUiEvent
@@ -56,6 +56,7 @@ fun HomeRoute(
     onNavigateToNote: (String) -> Unit,
     onAddNoteClicked: (String) -> Unit,
     onSignInViaGoogleClick: () -> Unit,
+    onSignInViaFacebookClick: () -> Unit,
     viewModel: HomeViewModel = hiltViewModel(),
 ) {
     val homeScreenUiState by viewModel.homeScreenUiState.collectAsStateWithLifecycle()
@@ -69,7 +70,7 @@ fun HomeRoute(
         homeScreenUiState is HomeScreenUiState.Content.NormalMode && (homeScreenUiState as HomeScreenUiState.Content.NormalMode).isSelectionMode
 
     var searchValue by rememberSaveable { mutableStateOf("") }
-    var openSignInBottomSheet by rememberSaveable { mutableStateOf(true) }
+    var openSignInBottomSheet by rememberSaveable { mutableStateOf(false) }
     val signInBottomSheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true)
 
     val isSyncingData by remember {
@@ -84,11 +85,12 @@ fun HomeRoute(
             sheetState = signInBottomSheetState,
             onDismissRequest = { openSignInBottomSheet = false },
             onSignInWithEmail = viewModel::signInViaEmail,
-            onClickSignUp = {},
-            onSignInWithFacebook = {},
+            onClickSignIn = viewModel::activateSignIn,
+            onClickSignUp = viewModel::activateSignUp,
+            onSignInWithFacebook = onSignInViaFacebookClick,
             onSignInWithGoogle = onSignInViaGoogleClick,
             onSyncData = {},
-            onSignOut = {},
+            onSignOut = viewModel::signOut,
             onSignUpWithEmail = viewModel::signUpWithEmail
         )
     }

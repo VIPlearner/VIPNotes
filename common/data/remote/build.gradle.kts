@@ -1,4 +1,4 @@
-
+@Suppress("DSL_SCOPE_VIOLATION") // TODO: Remove once KTIJ-19369 is fixed
 plugins {
     alias(libs.plugins.androidLibrary)
     alias(libs.plugins.kotlin.android)
@@ -37,6 +37,11 @@ android {
 }
 
 dependencies {
+    implementation(project(":common:domain"))
+    implementation(libs.activity)
+    implementation(libs.firebase.auth)
+    implementation(libs.jakewharton.timber)
+    implementation(libs.play.services.auth)
     implementation(libs.core.ktx)
     implementation(libs.bundles.ktor)
     implementation(libs.kotlin.serialization)

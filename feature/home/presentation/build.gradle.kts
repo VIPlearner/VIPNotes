@@ -54,6 +54,7 @@ dependencies {
     implementation(project(":common:domain"))
     implementation(project(":common:presentation"))
     implementation(project(":feature:home:domain"))
+    implementation(libs.jakewharton.timber)
     implementation(libs.icons.extended)
     implementation(libs.rich.editor)
     implementation(libs.firebase.auth)
