@@ -57,7 +57,7 @@ dependencies {
     implementation(libs.jakewharton.timber)
     implementation(libs.icons.extended)
     implementation(libs.rich.editor)
-    implementation(libs.firebase.auth)
+    implementation(libs.firebase.bom)
     implementation(libs.play.services.auth)
     implementation(libs.core.ktx)
     implementation(libs.lifecycle.runtime.ktx)

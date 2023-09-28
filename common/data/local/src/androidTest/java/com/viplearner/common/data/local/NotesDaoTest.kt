@@ -1,6 +1,5 @@
 package com.viplearner.common.data.local
 
-import android.util.Log
 import androidx.room.Room
 import androidx.test.core.app.ApplicationProvider
 import androidx.test.ext.junit.runners.AndroidJUnit4
@@ -47,7 +46,7 @@ class NoteDaoTest {
             )
             noteDao.upsert(note)
 
-            val noteList = noteDao.getAll().first()
+            val noteList = noteDao.getAllFlow().first()
             assert(noteList.contains(note))
         }
     }
@@ -96,7 +95,7 @@ class NoteDaoTest {
             noteDao.upsert(note)
             noteDao.delete(note.uuid)
 
-            val favouriteList = noteDao.getAll().first()
+            val favouriteList = noteDao.getAllFlow().first()
             assert(favouriteList.contains(note).not())
         }
     }

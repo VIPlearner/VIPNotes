@@ -39,6 +39,7 @@ dependencies {
     implementation(libs.javax.inject)
     implementation(libs.androidx.dataStore.preferences)
     implementation(libs.coroutines.core)
+    implementation(libs.firebase.bom)
     testImplementation(libs.coroutines.test)
     testImplementation(libs.junit4)
 }

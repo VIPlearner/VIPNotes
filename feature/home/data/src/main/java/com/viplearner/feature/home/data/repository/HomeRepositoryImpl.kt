@@ -28,7 +28,7 @@ class HomeRepositoryImpl @Inject constructor(
     override suspend fun getListBySearchText(searchText: String): Flow<Result<List<NoteEntity>, HomeError>> =
         homeService.getListBySearchText(searchText).flatMapConcat { list ->
             flow<Result<List<NoteEntity>, HomeError>> {
-                emit(Result.Success(list.map { it.toNoteEntity() }))
+                emit(Result.Success(list.map { it.toNoteEntity() }.filter { !it.isDeleted }))
             }.onStart {
                 emit(Result.Loading())
             }.catch {
@@ -40,7 +40,7 @@ class HomeRepositoryImpl @Inject constructor(
     override suspend fun getList(): Flow<Result<List<NoteEntity>, HomeError>> =
         homeService.getList().flatMapConcat { list ->
             flow<Result<List<NoteEntity>, HomeError>> {
-                emit(Result.Success(list.map { it.toNoteEntity() }))
+                emit(Result.Success(list.map { it.toNoteEntity() }.filter { !it.isDeleted }))
             }.onStart {
                 emit(Result.Loading())
             }.catch {
@@ -137,6 +137,22 @@ class HomeRepositoryImpl @Inject constructor(
                 when(it){
                     is FirebaseNetworkException -> Result.Error(HomeError.NetworkError)
                     else -> Result.Error(HomeError.SignUpError)
+                }
+            )
+        }.flowOn(ioDispatcher)
+    }
+
+    override suspend fun syncNotes(uid: String): Flow<Result<Unit, HomeError>> {
+        return flow<Result<Unit, HomeError>> {
+            homeService.syncNotes(uid)
+            emit(Result.Success(Unit))
+        }.onStart {
+            emit(Result.Loading())
+        }.catch {
+            emit(
+                when(it){
+                    is FirebaseNetworkException -> Result.Error(HomeError.NetworkError)
+                    else -> Result.Error(HomeError.SyncNotesError)
                 }
             )
         }.flowOn(ioDispatcher)

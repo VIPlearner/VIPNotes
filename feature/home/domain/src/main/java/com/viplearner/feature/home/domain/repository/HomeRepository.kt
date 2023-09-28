@@ -17,4 +17,5 @@ interface HomeRepository {
     suspend fun signOut(): Flow<Result<Unit, HomeError>>
     suspend fun signIn(email: String, password: String): Flow<Result<Unit, HomeError>>
     suspend fun signUp(email: String, password: String): Flow<Result<Unit, HomeError>>
+    suspend fun syncNotes(uid: String): Flow<Result<Unit, HomeError>>
 }

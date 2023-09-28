@@ -11,5 +11,6 @@ data class Note(
     @ColumnInfo(name = "title") val title: String,
     @ColumnInfo(name = "content") val content: String,
     @ColumnInfo(name = "timeLastEdited") val timeLastEdited: Long,
-    @ColumnInfo(name = "isPinned", defaultValue = "0") var isPinned: Boolean
+    @ColumnInfo(name = "isPinned", defaultValue = "0") var isPinned: Boolean,
+    @ColumnInfo(name = "isDeleted", defaultValue = "false") var isDeleted: Boolean = false
 )

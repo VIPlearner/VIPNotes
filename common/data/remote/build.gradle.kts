@@ -39,13 +39,15 @@ android {
 dependencies {
     implementation(project(":common:domain"))
     implementation(libs.activity)
-    implementation(libs.firebase.auth)
     implementation(libs.jakewharton.timber)
     implementation(libs.play.services.auth)
     implementation(libs.core.ktx)
+    implementation(libs.firebase.bom)
     implementation(libs.bundles.ktor)
     implementation(libs.kotlin.serialization)
     implementation(libs.hilt)
     implementation(libs.junit4)
+    implementation(libs.firebase.database.ktx)
+    implementation(libs.firebase.auth.ktx)
     kapt(libs.hilt.compiler)
 }

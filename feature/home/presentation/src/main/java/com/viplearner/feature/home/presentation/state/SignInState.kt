@@ -6,5 +6,5 @@ sealed class SignInState {
     data object Init: SignInState()
     data object SignUp: SignInState()
     data object Loading: SignInState()
-    data class SignInSuccess(val userData: UserData): SignInState()
+    data class SignInSuccess(val userData: UserData, val isSyncing: Boolean): SignInState()
 }

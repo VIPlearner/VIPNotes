@@ -1,10 +1,10 @@
-package com.viplearner.common.data.local.mapper
+package com.viplearner.common.data.remote.mapper
 
-import com.viplearner.common.data.local.dto.Note
+import com.viplearner.common.data.remote.dto.Note
 import com.viplearner.common.domain.entity.NoteEntity
 
-fun Note.toNoteEntity(): NoteEntity =
-    NoteEntity(
+fun NoteEntity.toNote() =
+    Note(
         uuid = uuid,
         title = title,
         content = content,

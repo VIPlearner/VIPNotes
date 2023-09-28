@@ -19,7 +19,8 @@ class SingleNoteService @Inject constructor(
             title = "",
             content = "",
             isPinned = false,
-            timeLastEdited = System.currentTimeMillis()
+            timeLastEdited = System.currentTimeMillis(),
+            isDeleted = false
         )
         notesDatabase.notesDao().upsert(newNote)
         return newNote
@@ -27,5 +28,10 @@ class SingleNoteService @Inject constructor(
 
     fun deleteNote(
         uuid: String,
-    ) = notesDatabase.notesDao().delete(uuid)
+    ) {
+        notesDatabase.notesDao().getNoteUsingUUID(uuid)
+            .let { note ->
+                notesDatabase.notesDao().upsert(note.copy(isDeleted = true))
+            }
+    }
 }

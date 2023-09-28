@@ -12,6 +12,7 @@ import com.viplearner.feature.home.domain.usecase.PinNotesUseCase
 import com.viplearner.feature.home.domain.usecase.SignInViaEmailAndPasswordUseCase
 import com.viplearner.feature.home.domain.usecase.SignOutUseCase
 import com.viplearner.feature.home.domain.usecase.SignUpViaEmailAndPasswordUseCase
+import com.viplearner.feature.home.domain.usecase.SyncNotesUseCase
 import com.viplearner.feature.home.domain.usecase.UnpinNotesUseCase
 import com.viplearner.feature.home.presentation.mapper.ErrorMessageMapper
 import com.viplearner.feature.home.presentation.mapper.toNoteItem
@@ -39,6 +40,7 @@ class HomeViewModel @Inject constructor(
     private val signOutUseCase: SignOutUseCase,
     private val signInViaEmailAndPasswordUseCase: SignInViaEmailAndPasswordUseCase,
     private val signUpViaEmailAndPasswordUseCase: SignUpViaEmailAndPasswordUseCase,
+    private val syncNotesUseCase: SyncNotesUseCase,
     private val errorMessageMapper: ErrorMessageMapper,
     private val localizationManager: LocalizationManager,
 ) : ViewModel() {
@@ -229,7 +231,7 @@ class HomeViewModel @Inject constructor(
                 when (result) {
                     is Result.Success -> {
                         result.data?.let { response ->
-                            _signInState.value = SignInState.SignInSuccess(response)
+                            _signInState.value = SignInState.SignInSuccess(response, false)
                         }
                     }
 
@@ -351,6 +353,44 @@ class HomeViewModel @Inject constructor(
                 },
                 isSelectionMode = true
             )
+        }
+    }
+
+    fun syncNotes(){
+        Timber.d("syncNotes")
+        viewModelScope.launch {
+            syncNotesUseCase.invoke((_signInState.value as SignInState.SignInSuccess).userData.userId).collectLatest { result ->
+                when (result) {
+                    is Result.Success -> {
+                        _signInState.value = SignInState.SignInSuccess(
+                            (_signInState.value as SignInState.SignInSuccess).userData,
+                            false
+                        )
+                        Timber.d("syncNotes successfully")
+                    }
+
+                    is Result.Loading -> {
+                        _signInState.value = SignInState.SignInSuccess(
+                            (_signInState.value as SignInState.SignInSuccess).userData,
+                            true
+                        )
+                        Timber.d("syncNotes loading")
+                    }
+
+                    is Result.Error -> {
+                        _signInState.value = SignInState.SignInSuccess(
+                            (_signInState.value as SignInState.SignInSuccess).userData,
+                            false
+                        )
+                        _homeScreenUiEvent.value = HomeScreenUiEvent.Error(
+                            errorMessageMapper.getErrorMessage(result.error)
+                        )
+                        Timber.d("syncNotes: ${result.error}")
+                    }
+
+                    else -> {}
+                }
+            }
         }
     }
 

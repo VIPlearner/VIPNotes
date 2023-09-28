@@ -12,5 +12,6 @@ sealed class HomeError {
     data object SignInError : HomeError()
     data object SignUpError : HomeError()
     data object NetworkError : HomeError()
+    data object SyncNotesError: HomeError()
     data object UnknownError : HomeError()
 }

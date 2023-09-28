@@ -80,7 +80,6 @@ fun HomeRoute(
 
     if(openSignInBottomSheet){
         SignInModal(
-            isSyncingData = isSyncingData,
             signInState = signInState,
             sheetState = signInBottomSheetState,
             onDismissRequest = { openSignInBottomSheet = false },
@@ -89,7 +88,7 @@ fun HomeRoute(
             onClickSignUp = viewModel::activateSignUp,
             onSignInWithFacebook = onSignInViaFacebookClick,
             onSignInWithGoogle = onSignInViaGoogleClick,
-            onSyncData = {},
+            onSyncData = viewModel::syncNotes,
             onSignOut = viewModel::signOut,
             onSignUpWithEmail = viewModel::signUpWithEmail
         )

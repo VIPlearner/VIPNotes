@@ -4,7 +4,6 @@ import com.google.firebase.auth.ktx.auth
 import com.google.firebase.ktx.Firebase
 import com.viplearner.common.domain.auth_repository.AuthRepository
 import com.viplearner.common.domain.entity.UserData
-import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.tasks.await
 import timber.log.Timber
 
@@ -34,7 +33,6 @@ class AuthRepositoryImpl: AuthRepository {
 
     }
 
-    @OptIn(ExperimentalCoroutinesApi::class)
     override suspend fun signUp(email: String, password: String): UserData {
         try{
             Timber.d("AuthRepository signUp: $email $password")

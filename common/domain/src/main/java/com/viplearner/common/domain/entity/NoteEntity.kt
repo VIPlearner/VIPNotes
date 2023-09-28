@@ -8,4 +8,5 @@ data class NoteEntity(
     var content: String,
     var timeLastEdited: Long,
     val isPinned: Boolean,
+    val isDeleted: Boolean = false
 )

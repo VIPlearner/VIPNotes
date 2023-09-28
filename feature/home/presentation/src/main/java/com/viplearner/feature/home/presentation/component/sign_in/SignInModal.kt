@@ -56,7 +56,6 @@ import com.viplearner.feature.home.presentation.state.SignInState
 @OptIn(ExperimentalMaterial3Api::class, ExperimentalComposeUiApi::class)
 @Composable
 fun SignInModal(
-    isSyncingData: Boolean,
     signInState: SignInState,
     sheetState: SheetState,
     modifier: Modifier = Modifier,
@@ -185,7 +184,7 @@ fun SignInModal(
                     SignInItem(
                         icon = Icons.Default.Sync,
                         text = localizationManager.getString(R.string.sync_notes),
-                        isLoading = isSyncingData
+                        isLoading = signInState.isSyncing
                     ){
                         onSyncData()
                     }
@@ -377,12 +376,12 @@ fun SignInModalPreview() {
                 "1",
                 "Mohamed Rejeb",
                 "www.google.com"
-            )
+            ),
+            false
         )
         )
     }
     SignInModal(
-        isSyncingData = false,
         signInState = signInState,
         sheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true),
         onDismissRequest = {},
@@ -392,7 +391,8 @@ fun SignInModalPreview() {
                     "1",
                     "johndoe@gmail.com",
                     "www.google.com"
-                )
+                ),
+                true
             )
         },
         onClickSignIn = {
@@ -413,7 +413,8 @@ fun SignInModalPreview() {
                     "1",
                     "Mohamed Rejeb",
                     "www.google.com"
-                )
+                ),
+                false
             )
         },
         onSyncData = {

@@ -5,7 +5,7 @@ minSdk = "24"
 targetSdk = "34"
 compileSdk = "34"
 kotlin-compiler-extension = "1.5.1"
-firebase = "22.1.2"
+firebase = "32.3.1"
 google-services = "4.4.0"
 play-services-auth = "20.4.1"
 androidxDataStore = "1.0.0"
@@ -43,6 +43,9 @@ mockk = "1.13.5"
 inject = "1"
 junit4 = "4.13.2"
 hilt-navigation = "1.0.0"
+firebaseDatabaseKtx = "20.2.2"
+firebaseAuthKtx = "21.0.1"
+firebaseCommonKtx = "20.3.3"
 
 [libraries]
 core-ktx = { group = "androidx.core", name = "core-ktx", version.ref = "core-ktx" }
@@ -59,7 +62,8 @@ activity-compose = { group = "androidx.activity", name = "activity-compose", ver
 activity = { group = "androidx.activity", name = "activity-ktx", version.ref = "activity" }
 facebook = { group = "com.facebook.android", name = "facebook-android-sdk", version.ref = "facebook" }
 compose-bom = { group = "androidx.compose", name = "compose-bom", version.ref = "compose-bom" }
-firebase-auth = { group = "com.google.firebase", name = "firebase-auth-ktx", version.ref = "firebase" }
+firebase-bom = { group = "com.google.firebase", name = "firebase-bom", version.ref = "firebase" }
+firebase-auth-ktx = { group = "com.google.firebase", name = "firebase-auth-ktx", version.ref = "firebaseAuthKtx" }
 play-services-auth = { group = "com.google.android.gms", name = "play-services-auth", version.ref = "play-services-auth" }
 androidx-dataStore-preferences = { group = "androidx.datastore", name = "datastore-preferences", version.ref = "androidxDataStore" }
 ui = { group = "androidx.compose.ui", name = "ui", version.ref = "compose" }
@@ -94,6 +98,8 @@ ktor-logging = { group = "io.ktor", name = "ktor-client-logging", version.ref = 
 gson = { group = "com.google.code.gson", name = "gson", version.ref = "gson" }
 mockk = { group = "io.mockk", name = "mockk", version.ref = "mockk" }
 junit4 = { group = "junit", name = "junit", version.ref = "junit4" }
+firebase-database-ktx = { group = "com.google.firebase", name = "firebase-database-ktx", version.ref = "firebaseDatabaseKtx" }
+firebase-common-ktx = { group = "com.google.firebase", name = "firebase-common-ktx", version.ref = "firebaseCommonKtx" }
 
 [bundles]
 ktor = ["ktor-core", "ktor-android", "ktor-contentNegotiation", "ktor-kotlinxSerialization", "ktor-logging"]

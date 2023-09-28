@@ -34,4 +34,6 @@
     <string name="sign_up_error">Looks like User might already exist \nNote: This error might occur if you already created an account using your google or facebook account</string>
     <string name="sign_out_error">Unable to sign out</string>
     <string name="network_error">Please check your internet connection and try again</string>
+    <string name="sync_notes_success">Notes Synced successfully</string>
+    <string name="sync_notes_error">"Error syncing data "</string>
 </resources>

@@ -10,7 +10,11 @@ import kotlinx.coroutines.flow.Flow
 interface NotesDao {
     @Query("SELECT * from Notes" +
             " ORDER BY timeLastEdited DESC")
-    fun getAll(): Flow<List<Note>>
+    fun getAllFlow(): Flow<List<Note>>
+
+    @Query("SELECT * from Notes" +
+            " ORDER BY timeLastEdited DESC")
+    fun getAll(): List<Note>
 
     @Query("SELECT * " +
             "FROM Notes " +
@@ -24,6 +28,9 @@ interface NotesDao {
             "FROM Notes " +
             "WHERE uuid=:uuid")
     fun getNoteUsingUUID(uuid: String): Note
+
+    @Query("SELECT EXISTS(SELECT * FROM Notes WHERE :uuid = uuid)")
+    fun noteExists(uuid: String): Boolean
 
     @Upsert
     fun upsert(note: Note)

@@ -20,6 +20,7 @@ class ErrorMessageMapper(
             is HomeError.SignInError -> localizationManager.getString(R.string.sign_in_error)
             is HomeError.SignUpError -> localizationManager.getString(R.string.sign_up_error)
             is HomeError.SignOutError -> localizationManager.getString(R.string.sign_out_error)
+            is HomeError.SyncNotesError -> localizationManager.getString(R.string.sync_notes_error)
             is HomeError.NetworkError -> localizationManager.getString(R.string.network_error)
 
             else -> localizationManager.getString(commonResources.string.unknown_error)
