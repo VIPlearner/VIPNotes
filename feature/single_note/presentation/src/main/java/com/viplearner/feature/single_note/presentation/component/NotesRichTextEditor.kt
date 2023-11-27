@@ -6,26 +6,23 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.imeNestedScroll
 import androidx.compose.foundation.layout.imePadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.OutlinedTextFieldDefaults
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.saveable.rememberSaveable
-import androidx.compose.ui.Alignment
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.focus.onFocusChanged
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.example.compose.NotesTheme
-import com.mohamedrejeb.richeditor.model.RichTextState
 import com.mohamedrejeb.richeditor.model.rememberRichTextState
 import com.mohamedrejeb.richeditor.sample.common.RichTextStyleRow
 import com.mohamedrejeb.richeditor.ui.material3.OutlinedRichTextEditor
@@ -40,6 +37,9 @@ fun NotesRichTextEditor(
     onValueChanged: (String) -> Unit
 ) {
     val richTextEditorState = rememberRichTextState()
+    var inFocus by remember {
+        mutableStateOf(false)
+    }
     LaunchedEffect(Unit) { richTextEditorState.setMarkdown(initialValue) }
     LaunchedEffect(richTextEditorState.annotatedString){
         onValueChanged(richTextEditorState.toMarkdown())
@@ -53,6 +53,9 @@ fun NotesRichTextEditor(
             modifier = Modifier
                 .fillMaxSize()
                 .padding(horizontal = 10.dp)
+                .onFocusChanged { focusState ->
+                    inFocus = focusState.hasFocus
+                }
                 .weight(1f),
             colors = RichTextEditorDefaults.outlinedRichTextEditorColors(
                 textColor = MaterialTheme.colorScheme.onBackground,
@@ -71,10 +74,12 @@ fun NotesRichTextEditor(
             },
             contentPadding = PaddingValues(4.dp)
         )
-        RichTextStyleRow(
-            modifier = Modifier.fillMaxWidth(),
-            state = richTextEditorState
-        )
+        if(inFocus){
+            RichTextStyleRow(
+                modifier = Modifier.fillMaxWidth(),
+                state = richTextEditorState
+            )
+        }
     }
 }
 

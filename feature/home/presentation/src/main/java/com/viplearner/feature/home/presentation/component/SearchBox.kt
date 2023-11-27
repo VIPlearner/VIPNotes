@@ -1,11 +1,8 @@
 package com.viplearner.feature.home.presentation.component
 
 import androidx.compose.animation.AnimatedVisibility
-import androidx.compose.animation.animateContentSize
-import androidx.compose.animation.core.tween
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
-import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Arrangement
@@ -44,6 +41,7 @@ import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import coil.compose.AsyncImage
+import com.viplearner.common.domain.extensions.isValidUrl
 import com.viplearner.common.presentation.component.VIPTextField
 import com.viplearner.common.presentation.util.rememberLocalizationManager
 import com.viplearner.feature.home.presentation.HomeTag
@@ -81,7 +79,7 @@ fun SearchBox(
                     indication = null,
                     onClick = {
                         if (searchClickEnabled) {
-                            searchFocus.captureFocus()
+                            searchFocus.requestFocus()
                             onSearchMode()
                         }
                     }
@@ -139,8 +137,7 @@ fun SearchBox(
                     enter = fadeIn(),
                     exit = fadeOut()
                 ) {
-                    if (profileImageUrl != null)
-
+                    if (profileImageUrl.isValidUrl())
                         IconButton(
                             modifier = Modifier
                                 .size(40.dp)

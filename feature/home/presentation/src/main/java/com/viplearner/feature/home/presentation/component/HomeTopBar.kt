@@ -3,9 +3,9 @@ package com.viplearner.feature.home.presentation.component
 import androidx.compose.animation.animateContentSize
 import androidx.compose.animation.core.tween
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.height
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Close
+import androidx.compose.material.icons.outlined.Settings
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
@@ -22,7 +22,6 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.tooling.preview.Preview
-import androidx.compose.ui.unit.dp
 import com.eemmez.localization.LocalizationManager
 import com.viplearner.feature.home.presentation.R
 import com.viplearner.feature.home.presentation.model.NoteItem
@@ -43,6 +42,7 @@ fun HomeTopBar(
     onDeselectAll: () -> Unit,
     onSearchCancelled: () -> Unit,
     onClickProfile: () -> Unit,
+    onClickSettings: () -> Unit,
     homeScreenUiState: HomeScreenUiState
 ) {
     val searchMode = homeScreenUiState is HomeScreenUiState.Content.SearchMode || homeScreenUiState is HomeScreenUiState.NoNoteFound
@@ -52,37 +52,50 @@ fun HomeTopBar(
     Column(modifier = modifier) {
         TopAppBar(
             modifier = Modifier
-                .animateContentSize(tween())
-                .then(
-                    if (!isSelectionMode) Modifier.height(0.dp)
-                    else Modifier
-                ),
+                .animateContentSize(tween()),
             title = {
-                Text(text = localizationManager.getString(R.string.select_items))
+                Text(
+                    text = if(isSelectionMode){
+                        localizationManager.getString(R.string.select_items)
+                    }else{
+                        "VIPNotes"
+                    }
+                )
             },
             navigationIcon = {
                 IconButton(onClick = onSelectionModeCancelled) {
-                    Icon(
-                        imageVector = Icons.Default.Close,
-                        contentDescription = localizationManager.getString(R.string.cancel_selection_mode)
-                    )
+                    if(isSelectionMode){
+                        Icon(
+                            imageVector = Icons.Default.Close,
+                            contentDescription = localizationManager.getString(R.string.cancel_selection_mode)
+                        )
+                    }
                 }
             },
             actions = {
-                TextButton(
-                    onClick = {
-                        if (!isAllSelected) onSelectAll() else onDeselectAll()
-                    }
-                ) {
-                    Text(
-                        text = if (!isAllSelected)
-                            localizationManager.getString(
-                                R.string.select_all
-                            ) else
+                if(isSelectionMode){
+                    TextButton(
+                        onClick = {
+                            if (!isAllSelected) onSelectAll() else onDeselectAll()
+                        }
+                    ) {
+                        Text(
+                            text = if (!isAllSelected)
+                                localizationManager.getString(
+                                    R.string.select_all
+                                ) else
                                 localizationManager.getString(
                                     R.string.deselect_all
                                 )
-                    )
+                        )
+                    }
+                }else{
+                    IconButton(onClick = onClickSettings) {
+                        Icon(
+                            imageVector = Icons.Outlined.Settings,
+                            contentDescription = null
+                        )
+                    }
                 }
             }
         )
@@ -149,6 +162,7 @@ fun HomeTopBarPreview() {
         onSearchCancelled = {
             homeScreenUiState = HomeScreenUiState.Content.NormalMode(list, false)
         },
+        onClickSettings = {},
         localizationManager = localizationManager,
         homeScreenUiState = homeScreenUiState,
         profileImageUrl = "https://www.gravatar.com/avatar/2433495de6d2b99746f8e25344209fa7?s=64&d=identicon&r=PG"

@@ -1,15 +1,11 @@
 package com.viplearner.feature.single_note.presentation
 
-import androidx.compose.animation.EnterTransition
 import androidx.compose.animation.slideInHorizontally
 import androidx.compose.animation.slideOutHorizontally
 import androidx.navigation.NavGraphBuilder
 import androidx.navigation.NavType
 import androidx.navigation.compose.composable
 import androidx.navigation.navArgument
-import com.viplearner.common.presentation.util.ParcelableType
-import com.viplearner.common.presentation.util.extension.getSafeParcelable
-import com.viplearner.feature.single_note.presentation.model.SingleNoteItem
 import com.viplearner.feature.single_note.presentation.viewmodel.SingleNoteViewModel
 
 object SingleNoteNavigation {

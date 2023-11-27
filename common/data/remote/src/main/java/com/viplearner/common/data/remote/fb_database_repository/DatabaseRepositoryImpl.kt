@@ -55,4 +55,7 @@ class DatabaseRepositoryImpl @Inject constructor(
             note.toNote()
         )
     }
+
+    override suspend fun observeNotes(uid: String) =
+        databaseService.observeNotes(uid)
 }

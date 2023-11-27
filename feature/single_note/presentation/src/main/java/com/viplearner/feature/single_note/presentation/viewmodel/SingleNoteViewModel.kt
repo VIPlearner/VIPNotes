@@ -19,6 +19,7 @@ import com.viplearner.feature.single_note.presentation.state.SingleNoteScreenUiS
 import dagger.assisted.Assisted
 import dagger.assisted.AssistedFactory
 import dagger.assisted.AssistedInject
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.collectLatest
@@ -53,7 +54,7 @@ class SingleNoteViewModel @AssistedInject constructor(
     }
 
     private fun getNote(uuid: String) {
-        viewModelScope.launch {
+        viewModelScope.launch(Dispatchers.IO) {
             getNoteUseCase.invoke(uuid).collectLatest { result ->
                 when (result) {
                     is Result.Success -> {
@@ -83,7 +84,7 @@ class SingleNoteViewModel @AssistedInject constructor(
     }
 
     private fun createNote(){
-        viewModelScope.launch {
+        viewModelScope.launch(Dispatchers.IO) {
             createNoteUseCase.invoke().collect{ result ->
                 when (result) {
                     is Result.Success -> {
@@ -112,7 +113,7 @@ class SingleNoteViewModel @AssistedInject constructor(
         _singleNoteScreenUiState.value =
             SingleNoteScreenUiState.Content(singleNoteItem)
 
-        viewModelScope.launch {
+        viewModelScope.launch(Dispatchers.IO) {
             noteEntity.apply {
                 content = singleNoteItem.content
                 title = singleNoteItem.title
@@ -138,7 +139,7 @@ class SingleNoteViewModel @AssistedInject constructor(
     }
 
     private fun deleteNote() {
-        viewModelScope.launch {
+        viewModelScope.launch(Dispatchers.IO) {
             deleteNoteUseCase.invoke(noteEntity.uuid).collectLatest{result ->
                 when (result) {
                     is Result.Success -> {
@@ -158,7 +159,7 @@ class SingleNoteViewModel @AssistedInject constructor(
         }
     }
 
-    fun close(){
+    fun close() = viewModelScope.launch(Dispatchers.IO) {
         if(noteEntity.title.isEmpty() && noteEntity.content.isEmpty()) {
             deleteNote()
         }

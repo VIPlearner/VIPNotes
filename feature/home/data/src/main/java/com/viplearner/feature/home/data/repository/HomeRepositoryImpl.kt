@@ -18,6 +18,7 @@ import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.flow.flowOn
 import kotlinx.coroutines.flow.onStart
 import kotlinx.serialization.json.Json
+import timber.log.Timber
 import javax.inject.Inject
 
 class HomeRepositoryImpl @Inject constructor(
@@ -142,9 +143,10 @@ class HomeRepositoryImpl @Inject constructor(
         }.flowOn(ioDispatcher)
     }
 
-    override suspend fun syncNotes(uid: String): Flow<Result<Unit, HomeError>> {
-        return flow<Result<Unit, HomeError>> {
-            homeService.syncNotes(uid)
+    override suspend fun syncNotes(uid: String, onlineNotes: List<NoteEntity>?): Flow<Result<Unit, HomeError>> =
+        flow<Result<Unit, HomeError>> {
+            Timber.e("What?")
+            homeService.syncNotes(uid, onlineNotes)
             emit(Result.Success(Unit))
         }.onStart {
             emit(Result.Loading())
@@ -156,5 +158,27 @@ class HomeRepositoryImpl @Inject constructor(
                 }
             )
         }.flowOn(ioDispatcher)
-    }
+    @OptIn(ExperimentalCoroutinesApi::class)
+    override suspend fun observeNotes(uid: String): Flow<Result<List<NoteEntity>, HomeError>> =
+        homeService.observeNotes(uid).flatMapConcat { list ->
+            flow<Result<List<NoteEntity>, HomeError>> {
+                emit(Result.Success(list.filter { !it.isDeleted }))
+            }.onStart {
+                emit(Result.Loading())
+            }.catch {
+                emit(Result.Error(HomeError.GetListError))
+            }
+        }
+
+    @OptIn(ExperimentalCoroutinesApi::class)
+    override suspend fun getSyncState(): Flow<Result<Boolean, HomeError>> =
+        homeService.getSyncState().flatMapConcat { syncState ->
+            flow<Result<Boolean, HomeError>> {
+                emit(Result.Success(syncState))
+            }.onStart {
+                emit(Result.Loading())
+            }.catch {
+                emit(Result.Error(HomeError.LoadSyncStateError))
+            }.flowOn(ioDispatcher)
+        }
 }

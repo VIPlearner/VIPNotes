@@ -1,12 +1,8 @@
 package com.viplearner.feature.single_note.presentation
 
-import android.util.Log
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.height
-import androidx.compose.foundation.layout.imePadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
@@ -26,13 +22,12 @@ import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import com.viplearner.common.presentation.component.BackPressHandler
 import com.viplearner.common.presentation.component.ErrorDialog
 import com.viplearner.common.presentation.component.ProgressDialog
 import com.viplearner.common.presentation.component.Template
-import com.viplearner.common.presentation.util.rememberLocalizationManager
 import com.viplearner.feature.single_note.presentation.component.NotesRichTextEditor
 import com.viplearner.feature.single_note.presentation.component.SingleNoteTextField
-import com.viplearner.feature.single_note.presentation.mapper.toSingleNoteItem
 import com.viplearner.feature.single_note.presentation.model.SingleNoteItem
 import com.viplearner.feature.single_note.presentation.state.SingleNoteScreenUiEvent
 import com.viplearner.feature.single_note.presentation.state.SingleNoteScreenUiState
@@ -57,8 +52,8 @@ fun SingleNoteRoute(
     }
 
     BackPressHandler {
-        viewModel.close()
         onBackClick()
+        viewModel.close()
     }
 
     SingleNoteScreen(
@@ -66,8 +61,8 @@ fun SingleNoteRoute(
             viewModel.updateNote(it)
         },
         onBackClick = {
-            viewModel.close()
             onBackClick()
+            viewModel.close()
         },
         singleNoteScreenUiState = singleNoteScreenUiState,
         singleNoteScreenUiEvent = singleNoteScreenUiEvent,

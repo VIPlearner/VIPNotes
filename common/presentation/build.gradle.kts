@@ -49,6 +49,7 @@ dependencies {
     implementation(libs.lifecycle.runtime.ktx)
     implementation(platform(libs.compose.bom))
     implementation(libs.ui)
+    implementation(libs.activity.compose)
     implementation(libs.localizationManager)
     implementation(libs.ui.graphics)
     implementation(libs.ui.tooling.preview)

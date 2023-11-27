@@ -9,6 +9,7 @@ object HomeNavigation {
 
 fun NavGraphBuilder.homeRoute(
     navigateToNote: (String) -> Unit,
+    navigateToSettings: () -> Unit,
     onSignInViaGoogleClick: () -> Unit,
     onSignInViaFacebookClick: () -> Unit
 ) {
@@ -16,6 +17,7 @@ fun NavGraphBuilder.homeRoute(
         HomeRoute(
             onAddNoteClicked = navigateToNote,
             onNavigateToNote = navigateToNote,
+            onNavigateToSettings = navigateToSettings,
             onSignInViaGoogleClick = onSignInViaGoogleClick,
             onSignInViaFacebookClick = onSignInViaFacebookClick
         )

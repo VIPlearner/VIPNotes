@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<resources>
+<resources xmlns:tools="http://schemas.android.com/tools">
     <string name="some_list_error">Unable to load notes</string>
     <string name="get_list_by_search_error">Unable to load notes with this query %s</string>
     <string name="add_note_error">Can not add to notes</string>
@@ -36,4 +36,7 @@
     <string name="network_error">Please check your internet connection and try again</string>
     <string name="sync_notes_success">Notes Synced successfully</string>
     <string name="sync_notes_error">"Error syncing data "</string>
+    <string name="sync_notes_dialog_title">Sync Notes</string>
+    <string name="sync_notes_dialog_text">Would you like to sync your notes across all your devices?</string>
+    <string name="vipnotes1" tools:ignore="ExtraTranslation">VIPNotes</string>
 </resources>

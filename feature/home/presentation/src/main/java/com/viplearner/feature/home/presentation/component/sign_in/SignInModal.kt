@@ -162,7 +162,6 @@ fun SignInModal(
                             .fillMaxWidth()
                             .padding(20.dp),
                         onSignInWithGoogle = onSignInWithGoogle,
-                        onSignInWithFacebook = onSignInWithFacebook,
                         onSignInWithEmail = { onDone() },
                         onClickSignUp = onClickSignUp
                     )
@@ -311,7 +310,6 @@ fun SignInModal(
                             .fillMaxWidth()
                             .padding(20.dp),
                         onSignUpWithGoogle = onSignInWithGoogle,
-                        onSignUpWithFacebook = onSignInWithFacebook,
                         onSignUpWithEmail = { onDone() },
                         onClickSignIn = onClickSignIn
                     )

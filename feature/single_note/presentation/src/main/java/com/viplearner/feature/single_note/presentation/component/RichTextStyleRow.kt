@@ -7,13 +7,22 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Circle
-import androidx.compose.material.icons.outlined.*
+import androidx.compose.material.icons.outlined.FormatAlignCenter
+import androidx.compose.material.icons.outlined.FormatAlignRight
+import androidx.compose.material.icons.outlined.FormatBold
+import androidx.compose.material.icons.outlined.FormatItalic
+import androidx.compose.material.icons.outlined.FormatListBulleted
+import androidx.compose.material.icons.outlined.FormatUnderlined
+import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.ModalBottomSheet
 import androidx.compose.material3.Surface
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.ParagraphStyle
 import androidx.compose.ui.text.SpanStyle
 import androidx.compose.ui.text.font.FontStyle
@@ -22,18 +31,29 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
 import com.mohamedrejeb.richeditor.model.RichTextState
-import com.mohamedrejeb.richeditor.model.RichTextStyle
-import com.mohamedrejeb.richeditor.model.RichTextValue
 import com.mohamedrejeb.richeditor.model.rememberRichTextState
-import timber.log.Timber
+import com.viplearner.feature.single_note.presentation.component.LinkModal
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun RichTextStyleRow(
     modifier: Modifier = Modifier,
     state: RichTextState
 ) {
+    var showLinkModal by remember {
+        mutableStateOf(false)
+    }
+    if(showLinkModal){
+        ModalBottomSheet(onDismissRequest = { showLinkModal = false }) {
+            LinkModal(
+                onDone = { text, url->
+                    state.addLink(text, url)
+                    showLinkModal = false
+                }
+            )
+        }
+    }
     Surface(
         color = MaterialTheme.colorScheme.outline,
         shape = RoundedCornerShape(topStart = 4.dp, topEnd = 4.dp)
@@ -119,6 +139,15 @@ fun RichTextStyleRow(
                 },
                 icon = Icons.Outlined.FormatAlignRight
             )
+
+//            RichTextStyleButton(
+//                enabled = state.isLink,
+//                onValueChanged =
+//                {
+//                    if(!state.isLink){ showLinkModal = true }
+//                },
+//                icon = Icons.Outlined.Link
+//            )
 
 //            RichTextStyleButton(
 //                enabled = state.isOrderedList,

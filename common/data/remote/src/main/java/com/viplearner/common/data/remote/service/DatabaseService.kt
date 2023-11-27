@@ -10,8 +10,12 @@ import com.google.firebase.database.ktx.database
 import com.google.firebase.ktx.Firebase
 import com.viplearner.common.data.remote.di.IoDispatcher
 import com.viplearner.common.data.remote.dto.Note
+import com.viplearner.common.data.remote.mapper.toNoteEntity
 import com.viplearner.common.domain.datastore.NotesDataStoreRepository
 import kotlinx.coroutines.CoroutineDispatcher
+import kotlinx.coroutines.channels.awaitClose
+import kotlinx.coroutines.flow.callbackFlow
+import kotlinx.coroutines.tasks.await
 import javax.inject.Inject
 
 class DatabaseService @Inject constructor(
@@ -49,6 +53,27 @@ class DatabaseService @Inject constructor(
         val listener = attachValueListenerToTaskCompletion(src)
         refToPath("users/$uid/notes").addListenerForSingleValueEvent(listener)
         return src.task
+    }
+
+    fun observeNotes(uid: String) = callbackFlow{
+        trySend(loadAllNotesTask(uid).await().children.mapNotNull {
+            it.getValue(Note::class.java)?.toNoteEntity()
+        })
+        val listener = object : ValueEventListener {
+            override fun onCancelled(error: DatabaseError) {}
+
+            override fun onDataChange(snapshot: DataSnapshot) {
+                val notes = mutableListOf<Note>()
+                snapshot.children.forEach { child ->
+                    child.getValue(Note::class.java)?.let { note ->
+                        notes.add(note)
+                    }
+                }
+                trySend(notes.map { note -> note.toNoteEntity() })
+            }
+        }
+        refToPath("users/$uid/notes").addValueEventListener(listener)
+        awaitClose { refToPath("users/$uid/notes").removeEventListener(listener) }
     }
 
     fun updateNote(uid: String, note: Note) {

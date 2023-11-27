@@ -1,5 +1,6 @@
 package com.viplearner.common.domain.datastore
 
+import androidx.datastore.preferences.core.booleanPreferencesKey
 import androidx.datastore.preferences.core.stringPreferencesKey
 
 object NotesDataStorePreferenceKeys {
@@ -7,4 +8,5 @@ object NotesDataStorePreferenceKeys {
 
     val USER_DATA = stringPreferencesKey("user_data")
     val PRIVATE_KEY = stringPreferencesKey("private_key")
+    val SYNC_STATE = booleanPreferencesKey("sync_state")
 }

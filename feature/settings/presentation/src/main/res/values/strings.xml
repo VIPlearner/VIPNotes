@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="load_sync_state_error">Unable to load sync state</string>
+    <string name="set_sync_state_error">Unable to set Sync State</string>
+    <string name="load_login_state_error">Unable to load Login State</string>
+</resources>

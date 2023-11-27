@@ -29,14 +29,14 @@ fun SignInCard(
     modifier: Modifier = Modifier,
     icon: ImageVector,
     text: String,
-    color: Color = Color.Transparent,
+    color: Color = MaterialTheme.colorScheme.surfaceVariant,
     onClick: () -> Unit,
 ){
     Surface(
         modifier = modifier,
         color = color,
         shape = CircleShape,
-        border = BorderStroke(1.dp, MaterialTheme.colorScheme.primary),
+        border = BorderStroke(1.dp, Color.Transparent),
         onClick = onClick
     ) {
         Row(

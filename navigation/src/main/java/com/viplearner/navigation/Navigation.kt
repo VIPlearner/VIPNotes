@@ -9,6 +9,8 @@ import com.viplearner.feature.home.presentation.homeRoute
 import com.viplearner.feature.single_note.presentation.SingleNoteNavigation
 import com.viplearner.feature.single_note.presentation.singleNoteRoute
 import com.viplearner.feature.single_note.presentation.viewmodel.SingleNoteViewModel
+import com.viplearner.notes.settings.presentation.SettingsNavigation
+import com.viplearner.notes.settings.presentation.settingsRoute
 
 @Composable
 fun Navigation(
@@ -23,8 +25,10 @@ fun Navigation(
     ) {
         homeRoute(
             navigateToNote = { uuid ->
-                val detailEntityArg = uuid
-                navController.navigate("${SingleNoteNavigation.route}/$detailEntityArg")
+                navController.navigate("${SingleNoteNavigation.route}/$uuid")
+            },
+            navigateToSettings = {
+                navController.navigate(SettingsNavigation.route)
             },
             onSignInViaGoogleClick = onSignInViaGoogleClick,
             onSignInViaFacebookClick = onSignInViaFacebookClick
@@ -32,6 +36,9 @@ fun Navigation(
         singleNoteRoute(
             factory = singleNoteViewModelFactory
         ) {
+            navController.popBackStack()
+        }
+        settingsRoute {
             navController.popBackStack()
         }
     }

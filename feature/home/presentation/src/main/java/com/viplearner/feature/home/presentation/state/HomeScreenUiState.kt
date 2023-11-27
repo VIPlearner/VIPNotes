@@ -13,7 +13,11 @@ sealed class HomeScreenUiState {
         data class NormalMode(
             override val list: List<NoteItem>,
             val isSelectionMode: Boolean
-        ) : Content(list)
+        ): Content(list){
+            fun isAllSelected(): Boolean {
+                return isSelectionMode && list.all { it.isSelected }
+            }
+        }
     }
     data class NoNoteFound(val noNoteFoundMessage: String) : HomeScreenUiState()
 

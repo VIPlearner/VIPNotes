@@ -69,10 +69,29 @@ class NotesDataStoreRepositoryImpl @Inject constructor (
             }
     }
 
-    override suspend fun savePrivateKey(privateKey: String) {
+    override suspend fun savePrivateKey(value: String) {
         prefsDataStore.edit { preferences ->
-            preferences[NotesDataStorePreferenceKeys.PRIVATE_KEY] = privateKey
+            preferences[NotesDataStorePreferenceKeys.PRIVATE_KEY] = value
         }
     }
 
+    override suspend fun getSyncState(): Flow<Boolean> {
+        return  prefsDataStore.data
+            .catch { exception ->
+                // dataStore.data throws an IOException when an error is encountered when reading data
+                if (exception is IOException) {
+                    emit(emptyPreferences())
+                } else {
+                    throw exception
+                }
+            }.map { preferences ->
+                preferences[NotesDataStorePreferenceKeys.SYNC_STATE]?:false
+            }
+    }
+
+    override suspend fun setSyncState(value: Boolean) {
+        prefsDataStore.edit { preferences ->
+            preferences[NotesDataStorePreferenceKeys.SYNC_STATE] = value
+        }
+    }
 }

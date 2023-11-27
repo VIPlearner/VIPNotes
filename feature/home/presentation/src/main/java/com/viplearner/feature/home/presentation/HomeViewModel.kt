@@ -1,19 +1,26 @@
 package com.viplearner.feature.home.presentation
 
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.AccountBox
+import androidx.compose.material.icons.filled.Sync
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.eemmez.localization.LocalizationManager
 import com.viplearner.common.domain.Result
+import com.viplearner.common.domain.entity.NoteEntity
 import com.viplearner.feature.home.domain.usecase.DeleteNoteUseCase
 import com.viplearner.feature.home.domain.usecase.GetListBySearchTextUseCase
 import com.viplearner.feature.home.domain.usecase.GetListUseCase
+import com.viplearner.feature.home.domain.usecase.GetSyncStateUseCase
 import com.viplearner.feature.home.domain.usecase.LoadUserDataUseCase
+import com.viplearner.feature.home.domain.usecase.ObserveNotesUseCase
 import com.viplearner.feature.home.domain.usecase.PinNotesUseCase
 import com.viplearner.feature.home.domain.usecase.SignInViaEmailAndPasswordUseCase
 import com.viplearner.feature.home.domain.usecase.SignOutUseCase
 import com.viplearner.feature.home.domain.usecase.SignUpViaEmailAndPasswordUseCase
 import com.viplearner.feature.home.domain.usecase.SyncNotesUseCase
 import com.viplearner.feature.home.domain.usecase.UnpinNotesUseCase
+import com.viplearner.feature.home.presentation.component.ConfirmDialogState
 import com.viplearner.feature.home.presentation.mapper.ErrorMessageMapper
 import com.viplearner.feature.home.presentation.mapper.toNoteItem
 import com.viplearner.feature.home.presentation.model.NoteItem
@@ -21,10 +28,13 @@ import com.viplearner.feature.home.presentation.state.HomeScreenUiEvent
 import com.viplearner.feature.home.presentation.state.HomeScreenUiState
 import com.viplearner.feature.home.presentation.state.SignInState
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.Job
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.collectLatest
+import kotlinx.coroutines.flow.dropWhile
 import kotlinx.coroutines.launch
 import timber.log.Timber
 import javax.inject.Inject
@@ -41,6 +51,8 @@ class HomeViewModel @Inject constructor(
     private val signInViaEmailAndPasswordUseCase: SignInViaEmailAndPasswordUseCase,
     private val signUpViaEmailAndPasswordUseCase: SignUpViaEmailAndPasswordUseCase,
     private val syncNotesUseCase: SyncNotesUseCase,
+    private val getSyncStateUseCase: GetSyncStateUseCase,
+    private val observeNotesUseCase: ObserveNotesUseCase,
     private val errorMessageMapper: ErrorMessageMapper,
     private val localizationManager: LocalizationManager,
 ) : ViewModel() {
@@ -53,13 +65,24 @@ class HomeViewModel @Inject constructor(
     private val _homeScreenUiEvent = MutableStateFlow<HomeScreenUiEvent>(HomeScreenUiEvent.Idle)
     val homeScreenUiEvent: StateFlow<HomeScreenUiEvent> = _homeScreenUiEvent
 
+    private val _confirmDialogState = MutableStateFlow(ConfirmDialogState(false, {}, {}, "", "", Icons.Default.AccountBox))
+    val confirmDialogState = _confirmDialogState.asStateFlow()
+
+    private val _syncState = MutableStateFlow(false)
+
+    var observeNotesJob: Job? = null
     init {
         getList()
         loadUserData()
     }
 
+    override fun onCleared() {
+        super.onCleared()
+        observeNotesJob?.cancel()
+    }
+
     fun getList() {
-        viewModelScope.launch {
+        viewModelScope.launch(Dispatchers.IO) {
             getListUseCase.invoke().collectLatest { result ->
                     when (result) {
                         is Result.Success -> {
@@ -95,7 +118,7 @@ class HomeViewModel @Inject constructor(
     }
 
     fun getListBySearchText(searchText: String) {
-        viewModelScope.launch {
+        viewModelScope.launch(Dispatchers.IO) {
             getListBySearchTextUseCase.invoke(searchText).collectLatest { result ->
                 when (result) {
                     is Result.Success -> {
@@ -128,7 +151,7 @@ class HomeViewModel @Inject constructor(
     }
 
     fun deleteNotes(noteItemList: List<NoteItem>) {
-        viewModelScope.launch {
+        viewModelScope.launch(Dispatchers.IO) {
             deleteNotesUseCase.invoke(
                 noteItemList.map{it.uuid}
             ).collectLatest{result ->
@@ -155,7 +178,7 @@ class HomeViewModel @Inject constructor(
     }
 
     fun pinNotes(noteItemList: List<NoteItem>) {
-        viewModelScope.launch {
+        viewModelScope.launch(Dispatchers.IO) {
             pinNotesUseCase.invoke(
                 noteItemList.map{it.uuid}
             ).collectLatest{result ->
@@ -182,7 +205,7 @@ class HomeViewModel @Inject constructor(
     }
 
     fun unpinNotes(noteItemList: List<NoteItem>) {
-        viewModelScope.launch {
+        viewModelScope.launch(Dispatchers.IO) {
             unpinNotesUseCase.invoke(
                 noteItemList.map{it.uuid}
             ).collectLatest{result ->
@@ -209,7 +232,7 @@ class HomeViewModel @Inject constructor(
     }
 
     fun selectNote(noteItem: NoteItem){
-        viewModelScope.launch {
+        viewModelScope.launch(Dispatchers.IO) {
             _homeScreenUiState.value = HomeScreenUiState.Content.NormalMode(
                 list = (homeScreenUiState.value as HomeScreenUiState.Content.NormalMode).list.map {
                     if(it.uuid == noteItem.uuid){
@@ -225,13 +248,13 @@ class HomeViewModel @Inject constructor(
     }
 
     private fun loadUserData(){
-        viewModelScope.launch {
+        viewModelScope.launch(Dispatchers.IO) {
             loadUserDataUseCase.invoke().collectLatest { result ->
-                Timber.d("loadUserData: $result")
                 when (result) {
                     is Result.Success -> {
                         result.data?.let { response ->
                             _signInState.value = SignInState.SignInSuccess(response, false)
+                            getSyncState(response.userId)
                         }
                     }
 
@@ -250,13 +273,14 @@ class HomeViewModel @Inject constructor(
     }
 
     fun signInViaEmail(email: String, password: String) =
-        viewModelScope.launch{
+        viewModelScope.launch(Dispatchers.IO){
             signInViaEmailAndPasswordUseCase.invoke(email, password).collect {
                 when (it) {
                     is Result.Success -> {
                         _homeScreenUiEvent.value = HomeScreenUiEvent.Success(
                             localizationManager.getString(R.string.sign_in_success)
                         )
+                        openConfirmDialogForSyncNotes()
                     }
 
                     is Result.Loading -> {
@@ -275,7 +299,7 @@ class HomeViewModel @Inject constructor(
         }
 
     fun signUpWithEmail(email: String, password: String){
-        viewModelScope.launch {
+        viewModelScope.launch(Dispatchers.IO) {
             signUpViaEmailAndPasswordUseCase.invoke(email, password).collect {
                 when (it) {
                     is Result.Success -> {
@@ -301,7 +325,7 @@ class HomeViewModel @Inject constructor(
     }
 
     fun signOut(){
-        viewModelScope.launch {
+        viewModelScope.launch(Dispatchers.IO) {
             signOutUseCase.invoke().collectLatest { result ->
                 when (result) {
                     is Result.Success -> {
@@ -335,7 +359,7 @@ class HomeViewModel @Inject constructor(
     }
 
     fun selectAll(){
-        viewModelScope.launch {
+        viewModelScope.launch(Dispatchers.IO) {
             _homeScreenUiState.value = HomeScreenUiState.Content.NormalMode(
                 list = (homeScreenUiState.value as HomeScreenUiState.Content.NormalMode).list.map {
                     it.copy(isSelected = true)
@@ -346,7 +370,7 @@ class HomeViewModel @Inject constructor(
     }
 
     fun deselectAll(){
-        viewModelScope.launch {
+        viewModelScope.launch(Dispatchers.IO) {
             _homeScreenUiState.value = HomeScreenUiState.Content.NormalMode(
                 list = (homeScreenUiState.value as HomeScreenUiState.Content.NormalMode).list.map {
                     it.copy(isSelected = false)
@@ -358,7 +382,7 @@ class HomeViewModel @Inject constructor(
 
     fun syncNotes(){
         Timber.d("syncNotes")
-        viewModelScope.launch {
+        viewModelScope.launch(Dispatchers.IO) {
             syncNotesUseCase.invoke((_signInState.value as SignInState.SignInSuccess).userData.userId).collectLatest { result ->
                 when (result) {
                     is Result.Success -> {
@@ -394,4 +418,75 @@ class HomeViewModel @Inject constructor(
         }
     }
 
+    private fun closeConfirmDialogBox(){
+        _confirmDialogState.value = _confirmDialogState.value.copy(openDialog = false)
+    }
+
+    private fun openConfirmDialogForSyncNotes(){
+        _confirmDialogState.value = _confirmDialogState.value.copy(
+            openDialog = true,
+            onDismissRequest = {
+                closeConfirmDialogBox()
+            },
+            onConfirmation = {
+                syncNotes()
+                closeConfirmDialogBox()
+            },
+            dialogTitle = localizationManager.getString(R.string.sync_notes_dialog_title),
+            dialogText = localizationManager.getString(R.string.sync_notes_dialog_text),
+            icon = Icons.Default.Sync
+        )
+    }
+
+    private fun observeNotes(uid: String) = viewModelScope.launch(Dispatchers.IO) {
+        observeNotesUseCase.invoke(uid).dropWhile { it is Result.Loading }.collectLatest { result ->
+            when (result) {
+                is Result.Success -> {
+                    syncNotesWithOnlineNotes(uid, result.data ?: emptyList())
+                }
+                is Result.Error -> {}
+
+                else -> {}
+            }
+        }
+    }
+
+    private fun syncNotesWithOnlineNotes(uid: String, onlineNotes: List<NoteEntity>) = viewModelScope.launch(Dispatchers.IO) {
+        Timber.d("WHy")
+        syncNotesUseCase.invoke(uid, onlineNotes).collectLatest {
+            when (it) {
+                is Result.Success -> {
+                    Timber.d("syncNotesWithOnlineNotes successfully")
+                }
+
+                is Result.Loading -> {
+                    Timber.d("syncNotesWithOnlineNotes loading")
+                }
+
+                is Result.Error -> {
+                    Timber.d("syncNotesWithOnlineNotes: ${it.error}")
+                }
+
+                else -> {}
+            }
+        }
+    }
+
+    private fun getSyncState(uid: String) = viewModelScope.launch(Dispatchers.IO) {
+        getSyncStateUseCase.invoke().dropWhile { it is Result.Loading }.collectLatest { result ->
+            when (result) {
+                is Result.Success -> {
+                    Timber.d("getSyncState: ${result.data}")
+                    if(result.data == true){
+                        observeNotesJob = observeNotes(uid)
+                        observeNotesJob!!.start()
+                    }
+                    else observeNotesJob?.cancel()
+                }
+                is Result.Error -> {
+                }
+                else -> {}
+            }
+        }
+    }
 }

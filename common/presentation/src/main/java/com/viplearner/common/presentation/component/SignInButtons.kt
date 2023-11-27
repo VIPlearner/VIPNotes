@@ -2,11 +2,9 @@ package com.viplearner.common.presentation.component
 
 import android.widget.Toast
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.text.ClickableText
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Email
@@ -30,11 +28,19 @@ import com.viplearner.common.presentation.R
 fun SignInButtons(
     modifier: Modifier = Modifier,
     onSignInWithGoogle: () -> Unit,
-    onSignInWithFacebook: () -> Unit,
     onSignInWithEmail: () -> Unit,
     onClickSignUp: () -> Unit
 ) {
     Column(modifier = modifier) {
+        SignInCard(
+            modifier = Modifier
+                .height(55.dp),
+            icon = Icons.Filled.Email,
+            text = "Email"
+        ) {
+            onSignInWithEmail()
+        }
+        Spacer(modifier = Modifier.height(15.dp))
         SignInCard(
             modifier = Modifier.height(55.dp),
             icon = ImageVector.vectorResource(R.drawable.icons8_google),
@@ -42,28 +48,6 @@ fun SignInButtons(
             color = Color.White,
         ) {
             onSignInWithGoogle()
-        }
-        Spacer(modifier = Modifier.height(15.dp))
-        Row {
-            SignInCard(
-                modifier = Modifier
-                    .weight(1f)
-                    .height(45.dp),
-                icon = ImageVector.vectorResource(R.drawable.icons8_facebook),
-                text = "Facebook"
-            ) {
-                onSignInWithFacebook()
-            }
-            Spacer(modifier = Modifier.width(15.dp))
-            SignInCard(
-                modifier = Modifier
-                    .weight(1f)
-                    .height(45.dp),
-                icon = Icons.Filled.Email,
-                text = "Email"
-            ) {
-                onSignInWithEmail()
-            }
         }
         val annotatedString = buildAnnotatedString {
             append("Don't have an account? ")
@@ -98,7 +82,6 @@ fun SignInButtons(
 fun SignUpButtons(
     modifier: Modifier = Modifier,
     onSignUpWithGoogle: () -> Unit,
-    onSignUpWithFacebook: () -> Unit,
     onSignUpWithEmail: () -> Unit,
     onClickSignIn: () -> Unit
 ) {
@@ -106,32 +89,19 @@ fun SignUpButtons(
         SignInCard(
             modifier = Modifier.height(55.dp),
             icon = Icons.Filled.Email,
-            text = "Sign Up with Email",
-            color = Color.White,
+            text = "Sign Up with Email"
         ) {
             onSignUpWithEmail()
         }
         Spacer(modifier = Modifier.height(15.dp))
-        Row {
-            SignInCard(
-                modifier = Modifier
-                    .weight(1f)
-                    .height(45.dp),
-                icon = ImageVector.vectorResource(R.drawable.icons8_facebook),
-                text = "Facebook"
-            ) {
-                onSignUpWithFacebook()
-            }
-            Spacer(modifier = Modifier.width(15.dp))
-            SignInCard(
-                modifier = Modifier
-                    .weight(1f)
-                    .height(45.dp),
-                icon = ImageVector.vectorResource(R.drawable.icons8_facebook),
-                text = "Google"
-            ) {
-                onSignUpWithGoogle()
-            }
+        SignInCard(
+            modifier = Modifier
+                .height(45.dp),
+            icon = ImageVector.vectorResource(R.drawable.icons8_google),
+            text = "Google",
+            color = Color.White
+        ) {
+            onSignUpWithGoogle()
         }
         val annotatedString = buildAnnotatedString {
             append("Already have an account? ")
@@ -151,7 +121,7 @@ fun SignUpButtons(
                 Alignment.CenterHorizontally),
             onClick = { offset ->
                 annotatedString.getStringAnnotations(
-                    tag = "SignUp",// tag which you used in the buildAnnotatedString
+                    tag = "SignIn",// tag which you used in the buildAnnotatedString
                     start = offset,
                     end = offset
                 ).firstOrNull()?.let { annotation ->
@@ -170,7 +140,6 @@ fun SignInButtonsPreview() {
         SignInButtons(
             modifier = Modifier.padding(20.dp),
             onSignInWithGoogle = {},
-            onSignInWithFacebook = {},
             onSignInWithEmail = {},
             onClickSignUp = {
                 toast.show()

@@ -32,6 +32,22 @@ android {
         }
     }
 
+    signingConfigs {
+//        get {
+//            keyAlias = project.property("RELEASE_KEY_ALIAS").toString()
+//            keyPassword = project.property("RELEASE_KEY_PASSWORD").toString()
+//            storeFile = file(project.property("RELEASE_STORE_FILE").toString())
+//            storePassword = project.property("RELEASE_STORE_PASSWORD").toString()
+//        }
+
+        create("release") {
+            keyAlias = project.property("RELEASE_KEY_ALIAS").toString()
+            keyPassword = project.property("RELEASE_KEY_PASSWORD").toString()
+            storeFile = file(project.property("RELEASE_STORE_FILE").toString())
+            storePassword = project.property("RELEASE_STORE_PASSWORD").toString()
+        }
+    }
+
     buildTypes {
         release {
             isMinifyEnabled = false
@@ -39,6 +55,7 @@ android {
                 getDefaultProguardFile("proguard-android-optimize.txt"),
                 "proguard-rules.pro"
             )
+            signingConfig = signingConfigs.getByName("release")
         }
     }
     compileOptions {
@@ -74,6 +91,9 @@ dependencies {
     implementation(project(":feature:single_note:data"))
     implementation(project(":feature:single_note:domain"))
     implementation(project(":feature:single_note:presentation"))
+    implementation(project(":feature:settings:data"))
+    implementation(project(":feature:settings:domain"))
+    implementation(project(":feature:settings:presentation"))
     implementation(libs.core.ktx)
     implementation(libs.lifecycle.runtime.ktx)
     implementation(libs.hilt)

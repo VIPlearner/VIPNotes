@@ -1,4 +1,4 @@
-package com.viplearner.feature.single_note.presentation
+package com.viplearner.common.presentation.component
 
 import androidx.activity.OnBackPressedCallback
 import androidx.activity.OnBackPressedDispatcher
@@ -27,7 +27,6 @@ fun BackPressHandler(
 
     DisposableEffect(key1 = backPressedDispatcher) {
         backPressedDispatcher?.addCallback(backCallback)
-
         onDispose {
             backCallback.remove()
         }

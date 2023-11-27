@@ -1,6 +1,7 @@
 package com.viplearner.feature.home.presentation
 
 import android.content.res.Configuration
+import androidx.activity.compose.BackHandler
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.animateContentSize
 import androidx.compose.animation.core.tween
@@ -38,6 +39,7 @@ import com.viplearner.common.presentation.component.ErrorDialog
 import com.viplearner.common.presentation.component.ProgressDialog
 import com.viplearner.common.presentation.component.Template
 import com.viplearner.common.presentation.util.rememberLocalizationManager
+import com.viplearner.feature.home.presentation.component.ConfirmDialog
 import com.viplearner.feature.home.presentation.component.EmptyListView
 import com.viplearner.feature.home.presentation.component.HomeBottomBar
 import com.viplearner.feature.home.presentation.component.HomeTopBar
@@ -49,12 +51,14 @@ import com.viplearner.feature.home.presentation.model.NoteItem
 import com.viplearner.feature.home.presentation.state.HomeScreenUiEvent
 import com.viplearner.feature.home.presentation.state.HomeScreenUiState
 import com.viplearner.feature.home.presentation.state.SignInState
+import timber.log.Timber
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun HomeRoute(
     onNavigateToNote: (String) -> Unit,
     onAddNoteClicked: (String) -> Unit,
+    onNavigateToSettings: () -> Unit,
     onSignInViaGoogleClick: () -> Unit,
     onSignInViaFacebookClick: () -> Unit,
     viewModel: HomeViewModel = hiltViewModel(),
@@ -66,6 +70,7 @@ fun HomeRoute(
     val snackbarHostState = remember {
         SnackbarHostState()
     }
+    val confirmDialogState by viewModel.confirmDialogState.collectAsStateWithLifecycle()
     val isSelectionMode =
         homeScreenUiState is HomeScreenUiState.Content.NormalMode && (homeScreenUiState as HomeScreenUiState.Content.NormalMode).isSelectionMode
 
@@ -73,10 +78,36 @@ fun HomeRoute(
     var openSignInBottomSheet by rememberSaveable { mutableStateOf(false) }
     val signInBottomSheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true)
 
-    val isSyncingData by remember {
-        mutableStateOf(false)
+    BackHandler(
+        enabled = homeScreenUiState is HomeScreenUiState.Content.NormalMode && (homeScreenUiState as HomeScreenUiState.Content.NormalMode).isSelectionMode ||
+                homeScreenUiState is HomeScreenUiState.Content.SearchMode ||
+                openSignInBottomSheet
+    ) {
+        Timber.d("BackHandler: $homeScreenUiState")
+        if(openSignInBottomSheet){
+            openSignInBottomSheet = false
+            return@BackHandler
+        }
+        when(homeScreenUiState){
+            is HomeScreenUiState.Content.NormalMode -> {
+                if((homeScreenUiState as HomeScreenUiState.Content.NormalMode).isAllSelected()){
+                    viewModel.deselectAll()
+                }else if ((homeScreenUiState as HomeScreenUiState.Content.NormalMode).isSelectionMode){
+                    viewModel.getList()
+                }
+            }
+
+            is HomeScreenUiState.Content.SearchMode -> {
+                viewModel.getList()
+            }
+
+            else -> {
+                // do nothing
+            }
+        }
     }
 
+    ConfirmDialog(confirmDialogState)
 
     if(openSignInBottomSheet){
         SignInModal(
@@ -156,6 +187,9 @@ fun HomeRoute(
         onClickProfile = {
             openSignInBottomSheet = true
         },
+        onNavigateToSettings = {
+            onNavigateToSettings()
+        },
         homeScreenUiState = homeScreenUiState,
         homeScreenUiEvent = homeScreenUiEvent,
         snackbarHostState = snackbarHostState
@@ -181,6 +215,7 @@ internal fun HomeScreen(
     onDeselectAll: () -> Unit,
     onSearchCancelled: () -> Unit,
     onClickProfile: () -> Unit,
+    onNavigateToSettings: () -> Unit,
     homeScreenUiState: HomeScreenUiState,
     homeScreenUiEvent: HomeScreenUiEvent,
     snackbarHostState: SnackbarHostState
@@ -201,6 +236,7 @@ internal fun HomeScreen(
                 localizationManager = localizationManager,
                 onSearchCancelled = onSearchCancelled,
                 onClickProfile = onClickProfile,
+                onClickSettings = onNavigateToSettings,
                 homeScreenUiState = homeScreenUiState
             )
         },
@@ -399,6 +435,7 @@ fun HomeScreenPreview() {
         onItemLongClick = {},
         onDeleteNotesClicked = {},
         onClickProfile = {},
+        onNavigateToSettings = {},
         homeScreenUiState = search,
         homeScreenUiEvent = HomeScreenUiEvent.Idle,
         snackbarHostState = remember {

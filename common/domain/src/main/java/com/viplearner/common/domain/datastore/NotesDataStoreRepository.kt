@@ -18,4 +18,6 @@ interface NotesDataStoreRepository {
     suspend fun clearUserData()
     suspend fun getPrivateKey(): Flow<String>
     suspend fun savePrivateKey(privateKey: String)
+    suspend fun getSyncState(): Flow<Boolean>
+    suspend fun setSyncState(value: Boolean)
 }
